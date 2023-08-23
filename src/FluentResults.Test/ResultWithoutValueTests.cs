@@ -511,7 +511,7 @@ namespace FluentResults.Test
 
             isSuccess.Should().Be(true);
             isFailed.Should().Be(false);
-            errors.Should().BeNull();
+            errors.Should().BeEmpty();
         }
 
         [Fact]

@@ -235,7 +235,7 @@ namespace FluentResults.Test
             var valueResult = Result.Fail<int>("First error message");
 
             // Act
-            var result = valueResult.ToResult();
+            var result = valueResult.ToResultWithoutValue();
 
             // Assert
             result.IsFailed().Should().BeTrue();
@@ -259,7 +259,7 @@ namespace FluentResults.Test
             var valueResult = Result.Fail<int>("Failed");
 
             // Act
-            var result = valueResult.ToResult<float>();
+            var result = valueResult.ConvertResult<float>();
 
             // Assert
             result.IsFailed().Should().BeTrue();
@@ -271,7 +271,7 @@ namespace FluentResults.Test
             var valueResult = Result.Ok(4);
 
             // Act
-            var result = valueResult.ToResult<float>(v => v);
+            var result = valueResult.ConvertResult<float>(v => v);
 
             // Assert
             result.IsSuccess().Should().BeTrue();
@@ -316,7 +316,7 @@ namespace FluentResults.Test
                 var valueResult = Result.Fail<int>("First error message");
 
                 // Act
-                var result = await valueResult.Bind(x => new ValueTask<Result<int>>(Result.Ok(x)));
+                var result = await valueResult.Bind(x => new ValueTask<IResult<int>>(Result.Ok(x)));
 
                 // Assert
                 result.IsFailed().Should().BeTrue();
@@ -668,7 +668,7 @@ namespace FluentResults.Test
             var valueResult = Result.Fail<int>("First error message");
 
             // Act
-            Result result = valueResult.ToResult();
+            Result result = valueResult.ToResultWithoutValue();
 
             // Assert
             result.IsFailed().Should().BeTrue();
@@ -833,7 +833,7 @@ namespace FluentResults.Test
         [Fact]
         public void Implicit_conversion_Result_Value_is_converted_to_Result_object()
         {
-            Result<object> result = new Result<int>().WithValue(42);
+            Result<object> result = new Result<int>().WithValue(42).ConvertResult<object>(v => v);
 
             result.IsSuccess().Should().BeTrue();
             result.IsFailed().Should().BeFalse();
@@ -848,7 +848,9 @@ namespace FluentResults.Test
         [Fact]
         public void Implicit_conversion_Result_Value_is_converted_to_Result_object_with_Reasons()
         {
-            Result<object> result = new Result<int>().WithValue(42).WithReason(new SuccessTests.CustomSuccess());
+            Result<object> result = new Result<int>().WithValue(42)
+                .WithReason(new SuccessTests.CustomSuccess())
+                .ConvertResult<object>(v => v);
 
             result.IsSuccess().Should().BeTrue();
             result.IsFailed().Should().BeFalse();
@@ -865,7 +867,9 @@ namespace FluentResults.Test
         [Fact]
         public void Implicit_conversion_Result_Value_is_converted_to_Result_object_with_Errors()
         {
-            Result<object> result = new Result<int>().WithValue(42).WithError("foo");
+            Result<object> result = new Result<int>().WithValue(42)
+                .WithError("foo")
+                .ConvertResult<object>(v => v);
 
             result.IsSuccess().Should().BeFalse();
             result.IsFailed().Should().BeTrue();

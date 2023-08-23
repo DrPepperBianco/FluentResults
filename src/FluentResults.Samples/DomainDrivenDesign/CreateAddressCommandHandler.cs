@@ -16,7 +16,7 @@
 
             // Return failed result if address is invalid. Return ASAP
             if (createAddressResult.IsFailed())
-                return createAddressResult.ToResult();
+                return createAddressResult.ToResultWithoutValue();
 
             var customer = _repository.GetById(command.CustomerId);
 

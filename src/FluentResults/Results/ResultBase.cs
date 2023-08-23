@@ -25,8 +25,19 @@ namespace FluentResults
         }
     }
 
+    /// <summary>
+    /// Describes a type, that has deep clone mechanism
+    /// </summary>
+    public interface IDeepClonable<out T>
+    {
+        /// <summary>
+        /// Creates a deep clone
+        /// </summary>
+        public T DeepClone();
+    }
+
     public abstract class ResultBase<TResult> : ResultBase
-        where TResult : ResultBase<TResult>, IResultBase
+        where TResult : ResultBase<TResult>
 
     {
         /// <summary>
@@ -42,7 +53,7 @@ namespace FluentResults
         /// Add a success
         /// </summary>
         public TResult WithSuccess<TSuccess>()
-            where TSuccess : Success, new()
+            where TSuccess : ISuccess, new()
         {
             return (TResult)this.WithSuccess(new TSuccess());
         }

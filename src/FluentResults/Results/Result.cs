@@ -6,197 +6,50 @@ using System.Threading.Tasks;
 // ReSharper disable once CheckNamespace
 namespace FluentResults
 {
-    public partial class Result : ResultBase<Result>
+    /// <summary>
+    /// Interface to describe Result without value
+    /// </summary>
+    /// <remarks>
+    /// The only reason for this, is for extension methods to 
+    /// differntiate between result with value and without value.
+    /// </remarks>
+    public interface IResultWithoutValue : IResultBase { }
+
+    /// <summary>
+    /// Implementation for result without value
+    /// </summary>
+    public partial class Result : ResultBase<Result>, IDeepClonable<Result>, IResultWithoutValue
     {
+        /// <summary>
+        /// Default-Constructor
+        /// </summary>
         public Result()
         { }
 
-        /// <summary>
-        /// Map all errors of the result via errorMapper
-        /// </summary>
-        /// <param name="errorMapper"></param>
-        /// <returns></returns>
-        public Result MapErrors(Func<IError, IError> errorMapper)
-        {
-            if (this.IsSuccess())
-                return this;
-
-            return new Result()
-                .WithErrors(this.EnumerateErrors().Select(errorMapper))
-                .WithSuccesses(this.EnumerateSuccesses());
-        }
-
-        /// <summary>
-        /// Map all successes of the result via successMapper
-        /// </summary>
-        /// <param name="successMapper"></param>
-        /// <returns></returns>
-        public Result MapSuccesses(Func<ISuccess, ISuccess> successMapper)
-        {
-            return new Result()
-                .WithErrors(this.EnumerateErrors())
-                .WithSuccesses(this.EnumerateSuccesses().Select(successMapper));
-        }
-
-        public Result<TNewValue> ToResult<TNewValue>(TNewValue newValue = default)
-        {
-            return new Result<TNewValue>()
-                .WithValue(this.IsFailed() ? default : newValue)
-                .WithReasons(Reasons);
-        }
-
-        /// <summary>
-        /// Convert result to result with value that may fail.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var bakeryDtoResult = result.Bind(GetWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="bind">Transformation that may fail.</param>
-        public Result<TNewValue> Bind<TNewValue>(Func<Result<TNewValue>> bind)
-        {
-            var result = new Result<TNewValue>();
-            result.WithReasons(Reasons);
-            
-            if (this.IsSuccess())
-            {
-                var converted = bind();
-                result.WithValue(converted.ValueOrDefault);
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
+        /// <inheritdoc/>
+        public Result DeepClone() => 
+            new Result().WithReasons(this.Reasons);
         
         /// <summary>
-        /// Convert result to result with value that may fail asynchronously.
+        /// Implicit cast from Error to Result
         /// </summary>
-        /// <example>
-        /// <code>
-        ///  var bakeryDtoResult = result.Bind(GetWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="bind">Transformation that may fail.</param>
-        public async Task<Result<TNewValue>> Bind<TNewValue>(Func<Task<Result<TNewValue>>> bind)
-        {
-            var result = new Result<TNewValue>();
-            result.WithReasons(Reasons);
-            
-            if (this.IsSuccess())
-            {
-                var converted = await bind();
-                result.WithValue(converted.ValueOrDefault);
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Convert result to result with value that may fail asynchronously.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var bakeryDtoResult = result.Bind(GetWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="bind">Transformation that may fail.</param>
-        public async ValueTask<Result<TNewValue>> Bind<TNewValue>(Func<ValueTask<Result<TNewValue>>> bind)
-        {
-            var result = new Result<TNewValue>();
-            result.WithReasons(Reasons);
-            
-            if (this.IsSuccess())
-            {
-                var converted = await bind();
-                result.WithValue(converted.ValueOrDefault);
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Execute an action which returns a <see cref="Result"/>.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var done = result.Bind(ActionWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="action">Action that may fail.</param>
-        public Result Bind(Func<Result> action)
-        {
-            var result = new Result();
-            result.WithReasons(Reasons);
-            
-            if (this.IsSuccess())
-            {
-                var converted = action();
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Execute an action which returns a <see cref="Result"/> asynchronously.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var done = result.Bind(ActionWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="action">Action that may fail.</param>
-        public async Task<Result> Bind(Func<Task<Result>> action)
-        {
-            var result = new Result();
-            result.WithReasons(Reasons);
-            
-            if (this.IsSuccess())
-            {
-                var converted = await action();
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Execute an action which returns a <see cref="Result"/> asynchronously.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var done = result.Bind(ActionWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="action">Action that may fail.</param>
-        public async ValueTask<Result> Bind(Func<ValueTask<Result>> action)
-        {
-            var result = new Result();
-            result.WithReasons(Reasons);
-            
-            if (this.IsSuccess())
-            {
-                var converted = await action();
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-        
         public static implicit operator Result(Error error)
         {
             return Fail(error);
         }
 
+        /// <summary>
+        /// Implicit cast from List of errors to Result
+        /// </summary>
         public static implicit operator Result(List<Error> errors)
         {
             return Fail(errors);
         }
     }
 
+    /// <summary>
+    /// Interface for result, that can contain a result value.
+    /// </summary>
     public interface IResult<out TValue> : IResultBase
     {
         /// <summary>
@@ -210,21 +63,28 @@ namespace FluentResults
         TValue ValueOrDefault { get; }
     }
 
-    public class Result<TValue> : ResultBase<Result<TValue>>, IResult<TValue>
+    /// <summary>
+    /// Result, that can contain a result value.
+    /// </summary>
+    public class Result<TValue> : ResultBase<Result<TValue>>, IResult<TValue>, IDeepClonable<Result<TValue>>
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public Result()
         { }
 
+        /// <inheritdoc/>
+        public Result<TValue> DeepClone() => 
+            new Result<TValue>() { _value = _value }
+            .WithReasons(Reasons);
+
         private TValue _value;
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         public TValue ValueOrDefault => _value;
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         public TValue Value
         {
             get
@@ -251,207 +111,12 @@ namespace FluentResults
         }
 
         /// <summary>
-        /// Map all errors of the result via errorMapper
-        /// </summary>
-        /// <param name="errorMapper"></param>
-        /// <returns></returns>
-        public Result<TValue> MapErrors(Func<IError, IError> errorMapper)
-        {
-            if (this.IsSuccess())
-                return this;
-
-            return new Result<TValue>()
-                .WithErrors(this.EnumerateErrors().Select(errorMapper))
-                .WithSuccesses(this.EnumerateSuccesses());
-        }
-
-        /// <summary>
-        /// Map all successes of the result via successMapper
-        /// </summary>
-        /// <param name="successMapper"></param>
-        /// <returns></returns>
-        public Result<TValue> MapSuccesses(Func<ISuccess, ISuccess> successMapper)
-        {
-            return new Result<TValue>()
-                .WithValue(ValueOrDefault)
-                .WithErrors(this.EnumerateErrors())
-                .WithSuccesses(this.EnumerateSuccesses().Select(successMapper));
-        }
-
-        /// <summary>
-        /// Convert result with value to result without value
-        /// </summary>
-        public Result ToResult()
-        {
-            return new Result()
-                .WithReasons(Reasons);
-        }
-
-        /// <summary>
         /// Convert result with value to result with another value. Use valueConverter parameter to specify the value transformation logic.
         /// </summary>
-        public Result<TNewValue> ToResult<TNewValue>(Func<TValue, TNewValue> valueConverter = null)
-        {
-            return Map(valueConverter);
-        }
+        public Result<TNewValue> ConvertResult<TNewValue>(Func<TValue, TNewValue>? valueConverter = null) =>
+            this.ToResult<TValue, TNewValue>(valueConverter);
 
-        /// <summary>
-        /// Convert result with value to result with another value. Use valueConverter parameter to specify the value transformation logic.
-        /// </summary>
-        public Result<TNewValue> Map<TNewValue>(Func<TValue, TNewValue> mapLogic)
-        {
-            if (this.IsSuccess() && mapLogic == null)
-                throw new ArgumentException("If result is success then valueConverter should not be null");
-
-            return new Result<TNewValue>()
-                   .WithValue(this.IsFailed() ? default : mapLogic(Value))
-                   .WithReasons(Reasons);
-        }
-
-        /// <summary>
-        /// Convert result with value to result with another value that may fail.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var bakeryDtoResult = result
-        ///     .Bind(GetWhichMayFail)
-        ///     .Bind(ProcessWhichMayFail)
-        ///     .Bind(FormattingWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="bind">Transformation that may fail.</param>
-        public Result<TNewValue> Bind<TNewValue>(Func<TValue, Result<TNewValue>> bind)
-        {
-            var result = new Result<TNewValue>();
-            result.WithReasons(Reasons);
-            
-            if (this.IsSuccess())
-            {
-                var converted = bind(Value);
-                result.WithValue(converted.ValueOrDefault);
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Convert result with value to result with another value that may fail asynchronously.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var bakeryDtoResult = await result.Bind(GetWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="bind">Transformation that may fail.</param>
-        public async Task<Result<TNewValue>> Bind<TNewValue>(Func<TValue, Task<Result<TNewValue>>> bind)
-        {
-            var result = new Result<TNewValue>();
-            result.WithReasons(Reasons);
-            
-            if (this.IsSuccess())
-            {
-                var converted = await bind(Value);
-                result.WithValue(converted.ValueOrDefault);
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Convert result with value to result with another value that may fail asynchronously.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var bakeryDtoResult = await result.Bind(GetWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="bind">Transformation that may fail.</param>
-        public async ValueTask<Result<TNewValue>> Bind<TNewValue>(Func<TValue, ValueTask<Result<TNewValue>>> bind)
-        {
-            var result = new Result<TNewValue>();
-            result.WithReasons(Reasons);
-            
-            if (this.IsSuccess())
-            {
-                var converted = await bind(Value);
-                result.WithValue(converted.ValueOrDefault);
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Execute an action which returns a <see cref="Result"/>.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var done = result.Bind(ActionWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="action">Action that may fail.</param>
-        public Result Bind(Func<TValue, Result> action)
-        {
-            var result = new Result();
-            result.WithReasons(Reasons);
-
-            if (this.IsSuccess())
-            {
-                var converted = action(Value);
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Execute an action which returns a <see cref="Result"/> asynchronously.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var done = await result.Bind(ActionWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="action">Action that may fail.</param>
-        public async Task<Result> Bind(Func<TValue, Task<Result>> action)
-        {
-            var result = new Result();
-            result.WithReasons(Reasons);
-
-            if (this.IsSuccess())
-            {
-                var converted = await action(Value);
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Execute an action which returns a <see cref="Result"/> asynchronously.
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///  var done = await result.Bind(ActionWhichMayFail);
-        /// </code>
-        /// </example>
-        /// <param name="action">Action that may fail.</param>
-        public async ValueTask<Result> Bind(Func<TValue, ValueTask<Result>> action)
-        {
-            var result = new Result();
-            result.WithReasons(Reasons);
-
-            if (this.IsSuccess())
-            {
-                var converted = await action(Value);
-                result.WithReasons(converted.Reasons);
-            }
-
-            return result;
-        }
-
+        /// <inheritdoc/>
         public override string ToString()
         {
             var baseString = base.ToString();
@@ -459,16 +124,26 @@ namespace FluentResults
             return $"{baseString}, {valueString}";
         }
 
+        /// <summary>
+        /// Implicit cast to result without value
+        /// </summary>
         public static implicit operator Result<TValue>(Result result)
         {
             return result.ToResult<TValue>(default);
         }
 
+        /// <summary>
+        /// Implicit cast to result of object
+        /// </summary>
         public static implicit operator Result<object>(Result<TValue> result)
         {
-            return result.ToResult<object>(value => value);
+            return result.ToResult(value => (object)value);
         }
 
+        /// <summary>
+        /// Implicit cast to result with another value
+        /// </summary>
+        /// <param name="value"></param>
         public static implicit operator Result<TValue>(TValue value)
         {
             if (value is Result<TValue> r)
@@ -477,42 +152,20 @@ namespace FluentResults
             return Result.Ok(value);
         }
         
+        /// <summary>
+        /// Implicit cast from error to result with value
+        /// </summary>
         public static implicit operator Result<TValue>(Error error)
         {
             return Result.Fail(error);
         }
 
+        /// <summary>
+        /// Implicit cast from List of erros to result of value
+        /// </summary>
         public static implicit operator Result<TValue>(List<Error> errors)
         {
             return Result.Fail(errors);
-        }
-
-        /// <summary>
-        /// Deconstruct Result
-        /// </summary>
-        /// <param name="isSuccess"></param>
-        /// <param name="isFailed"></param>
-        /// <param name="value"></param>
-        public void Deconstruct(out bool isSuccess, out bool isFailed, out TValue value)
-        {
-            isSuccess = this.IsSuccess();
-            isFailed = this.IsFailed();
-            value = this.IsSuccess() ? Value : default;
-        }
-
-        /// <summary>
-        /// Deconstruct Result
-        /// </summary>
-        /// <param name="isSuccess"></param>
-        /// <param name="isFailed"></param>
-        /// <param name="value"></param>
-        /// <param name="errors"></param>
-        public void Deconstruct(out bool isSuccess, out bool isFailed, out TValue value, out IReadOnlyList<IError> errors)
-        {
-            isSuccess = this.IsSuccess();
-            isFailed = this.IsFailed();
-            value = this.IsSuccess() ? Value : default;
-            errors = this.IsFailed() ? this.Errors() : default;
         }
 
         private void ThrowIfFailed()

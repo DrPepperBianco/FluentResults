@@ -101,7 +101,7 @@ namespace FluentResults.Test
         {
             var r = Result.Ok(1);
 
-            var r1 = await r.Bind(v => GetVResult())
+            var r1 = await r.Bind((int v) => GetVResult())
                             .Bind(v => GetVResultAsync())
                             .Bind(v => GetVResult())
                             .Bind(v => GetVResultAsync())

@@ -26,13 +26,9 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Extensions\ResultExtensions.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\resources\icons\FluentResults-Icon-128.png" Pack="true" PackagePath="" />
-    <Compile Include="Extensions\ResultExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>
