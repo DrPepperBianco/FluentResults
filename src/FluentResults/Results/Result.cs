@@ -18,12 +18,12 @@ namespace FluentResults
         /// <returns></returns>
         public Result MapErrors(Func<IError, IError> errorMapper)
         {
-            if (IsSuccess)
+            if (this.IsSuccess())
                 return this;
 
             return new Result()
-                .WithErrors(Errors.Select(errorMapper))
-                .WithSuccesses(Successes);
+                .WithErrors(this.EnumerateErrors().Select(errorMapper))
+                .WithSuccesses(this.EnumerateSuccesses());
         }
 
         /// <summary>
@@ -34,14 +34,14 @@ namespace FluentResults
         public Result MapSuccesses(Func<ISuccess, ISuccess> successMapper)
         {
             return new Result()
-                .WithErrors(Errors)
-                .WithSuccesses(Successes.Select(successMapper));
+                .WithErrors(this.EnumerateErrors())
+                .WithSuccesses(this.EnumerateSuccesses().Select(successMapper));
         }
 
         public Result<TNewValue> ToResult<TNewValue>(TNewValue newValue = default)
         {
             return new Result<TNewValue>()
-                .WithValue(IsFailed ? default : newValue)
+                .WithValue(this.IsFailed() ? default : newValue)
                 .WithReasons(Reasons);
         }
 
@@ -59,7 +59,7 @@ namespace FluentResults
             var result = new Result<TNewValue>();
             result.WithReasons(Reasons);
             
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = bind();
                 result.WithValue(converted.ValueOrDefault);
@@ -83,7 +83,7 @@ namespace FluentResults
             var result = new Result<TNewValue>();
             result.WithReasons(Reasons);
             
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = await bind();
                 result.WithValue(converted.ValueOrDefault);
@@ -107,7 +107,7 @@ namespace FluentResults
             var result = new Result<TNewValue>();
             result.WithReasons(Reasons);
             
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = await bind();
                 result.WithValue(converted.ValueOrDefault);
@@ -131,7 +131,7 @@ namespace FluentResults
             var result = new Result();
             result.WithReasons(Reasons);
             
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = action();
                 result.WithReasons(converted.Reasons);
@@ -154,7 +154,7 @@ namespace FluentResults
             var result = new Result();
             result.WithReasons(Reasons);
             
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = await action();
                 result.WithReasons(converted.Reasons);
@@ -177,7 +177,7 @@ namespace FluentResults
             var result = new Result();
             result.WithReasons(Reasons);
             
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = await action();
                 result.WithReasons(converted.Reasons);
@@ -257,12 +257,12 @@ namespace FluentResults
         /// <returns></returns>
         public Result<TValue> MapErrors(Func<IError, IError> errorMapper)
         {
-            if (IsSuccess)
+            if (this.IsSuccess())
                 return this;
 
             return new Result<TValue>()
-                .WithErrors(Errors.Select(errorMapper))
-                .WithSuccesses(Successes);
+                .WithErrors(this.EnumerateErrors().Select(errorMapper))
+                .WithSuccesses(this.EnumerateSuccesses());
         }
 
         /// <summary>
@@ -274,8 +274,8 @@ namespace FluentResults
         {
             return new Result<TValue>()
                 .WithValue(ValueOrDefault)
-                .WithErrors(Errors)
-                .WithSuccesses(Successes.Select(successMapper));
+                .WithErrors(this.EnumerateErrors())
+                .WithSuccesses(this.EnumerateSuccesses().Select(successMapper));
         }
 
         /// <summary>
@@ -300,11 +300,11 @@ namespace FluentResults
         /// </summary>
         public Result<TNewValue> Map<TNewValue>(Func<TValue, TNewValue> mapLogic)
         {
-            if (IsSuccess && mapLogic == null)
+            if (this.IsSuccess() && mapLogic == null)
                 throw new ArgumentException("If result is success then valueConverter should not be null");
 
             return new Result<TNewValue>()
-                   .WithValue(IsFailed ? default : mapLogic(Value))
+                   .WithValue(this.IsFailed() ? default : mapLogic(Value))
                    .WithReasons(Reasons);
         }
 
@@ -325,7 +325,7 @@ namespace FluentResults
             var result = new Result<TNewValue>();
             result.WithReasons(Reasons);
             
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = bind(Value);
                 result.WithValue(converted.ValueOrDefault);
@@ -349,7 +349,7 @@ namespace FluentResults
             var result = new Result<TNewValue>();
             result.WithReasons(Reasons);
             
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = await bind(Value);
                 result.WithValue(converted.ValueOrDefault);
@@ -373,7 +373,7 @@ namespace FluentResults
             var result = new Result<TNewValue>();
             result.WithReasons(Reasons);
             
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = await bind(Value);
                 result.WithValue(converted.ValueOrDefault);
@@ -397,7 +397,7 @@ namespace FluentResults
             var result = new Result();
             result.WithReasons(Reasons);
 
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = action(Value);
                 result.WithReasons(converted.Reasons);
@@ -420,7 +420,7 @@ namespace FluentResults
             var result = new Result();
             result.WithReasons(Reasons);
 
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = await action(Value);
                 result.WithReasons(converted.Reasons);
@@ -443,7 +443,7 @@ namespace FluentResults
             var result = new Result();
             result.WithReasons(Reasons);
 
-            if (IsSuccess)
+            if (this.IsSuccess())
             {
                 var converted = await action(Value);
                 result.WithReasons(converted.Reasons);
@@ -495,9 +495,9 @@ namespace FluentResults
         /// <param name="value"></param>
         public void Deconstruct(out bool isSuccess, out bool isFailed, out TValue value)
         {
-            isSuccess = IsSuccess;
-            isFailed = IsFailed;
-            value = IsSuccess ? Value : default;
+            isSuccess = this.IsSuccess();
+            isFailed = this.IsFailed();
+            value = this.IsSuccess() ? Value : default;
         }
 
         /// <summary>
@@ -507,18 +507,18 @@ namespace FluentResults
         /// <param name="isFailed"></param>
         /// <param name="value"></param>
         /// <param name="errors"></param>
-        public void Deconstruct(out bool isSuccess, out bool isFailed, out TValue value, out List<IError> errors)
+        public void Deconstruct(out bool isSuccess, out bool isFailed, out TValue value, out IReadOnlyList<IError> errors)
         {
-            isSuccess = IsSuccess;
-            isFailed = IsFailed;
-            value = IsSuccess ? Value : default;
-            errors = IsFailed ? Errors : default;
+            isSuccess = this.IsSuccess();
+            isFailed = this.IsFailed();
+            value = this.IsSuccess() ? Value : default;
+            errors = this.IsFailed() ? this.Errors() : default;
         }
 
         private void ThrowIfFailed()
         {
-            if (IsFailed)
-                throw new InvalidOperationException($"Result is in status failed. Value is not set. Having: {ReasonFormat.ErrorReasonsToString(Errors)}");
+            if (this.IsFailed())
+                throw new InvalidOperationException($"Result is in status failed. Value is not set. Having: {ReasonFormat.ErrorReasonsToString(this.Errors())}");
         }
     }
 }

@@ -12,7 +12,7 @@ namespace FluentResults.Samples.MediatR.MediatRLogic.PipelineBehaviors
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             var validationResult = await ValidateAsync(request);
-            if (validationResult.IsFailed)
+            if (validationResult.IsFailed())
             {
                 var result = new TResponse();
 

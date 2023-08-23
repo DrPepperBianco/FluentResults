@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -6,6 +10,7 @@ namespace FluentResults.Extensions
 {
     public static class ResultExtensions
     {
+
         public static async Task<Result> MapErrors(this Task<Result> resultTask, Func<IError, IError> errorMapper)
         {
             var result = await resultTask;
@@ -303,22 +308,22 @@ namespace FluentResults.Extensions
 
         /// <inheritdoc cref="Result.MapErrors(Func{IError, IError})"/>
         public static IResultBase MapErrors(this IResultBase result, Func<IError, IError> errorMapper) =>
-            result.IsSuccess 
+            result.IsSuccess() 
                 ? result
                 : new Result()
-                    .WithErrors(result.Errors.Select(errorMapper))
-                    .WithSuccesses(result.Successes);
+                    .WithErrors(result.EnumerateErrors().Select(errorMapper))
+                    .WithSuccesses(result.EnumerateSuccesses());
 
         /// <inheritdoc cref="Result.MapSuccesses(Func{ISuccess, ISuccess})"/>
         public static IResultBase MapSuccesses(this IResultBase result, Func<ISuccess, ISuccess> successMapper) =>
             new Result()
-                .WithErrors(result.Errors)
-                .WithSuccesses(result.Successes.Select(successMapper));
+                .WithErrors(result.EnumerateErrors())
+                .WithSuccesses(result.EnumerateSuccesses().Select(successMapper));
 
         /// <inheritdoc cref="Result.ToResult{TNewValue}(TNewValue)"/>
         public static IResult<TNewValue> ToResult<TNewValue>(this IResultBase result, TNewValue newValue = default) =>
             new Result<TNewValue>()
-                .WithValue(result.IsFailed ? default : newValue)
+                .WithValue(result.IsFailed() ? default : newValue)
                 .WithReasons(result.Reasons);
 
         /// <inheritdoc cref="Result.Bind{TNewValue}(Func{Result{TNewValue}})"/>
@@ -327,7 +332,7 @@ namespace FluentResults.Extensions
             var out_result = new Result<TNewValue>();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = bind();
                 out_result.WithValue(converted.ValueOrDefault);
@@ -343,7 +348,7 @@ namespace FluentResults.Extensions
             var out_result = new Result<TNewValue>();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = await bind();
                 out_result.WithValue(converted.ValueOrDefault);
@@ -359,7 +364,7 @@ namespace FluentResults.Extensions
             var out_result = new Result<TNewValue>();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = await bind();
                 out_result.WithValue(converted.ValueOrDefault);
@@ -375,7 +380,7 @@ namespace FluentResults.Extensions
             var out_result = new Result();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = action();
                 out_result.WithReasons(converted.Reasons);
@@ -390,7 +395,7 @@ namespace FluentResults.Extensions
             var out_result = new Result();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = await action();
                 out_result.WithReasons(converted.Reasons);
@@ -405,7 +410,7 @@ namespace FluentResults.Extensions
             var out_result = new Result();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = await action();
                 out_result.WithReasons(converted.Reasons);
@@ -430,18 +435,18 @@ namespace FluentResults.Extensions
 
         /// <inheritdoc cref="Result{TValue}.MapErrors(Func{IError, IError})"/>
         public static IResult<TValue> MapErrors<TValue>(this IResult<TValue> result, Func<IError, IError> errorMapper) =>
-            result.IsSuccess
+            result.IsSuccess()
                 ? result
                 : new Result<TValue>()
-                    .WithErrors(result.Errors.Select(errorMapper))
-                    .WithSuccesses(result.Successes);
+                    .WithErrors(result.EnumerateErrors().Select(errorMapper))
+                    .WithSuccesses(result.EnumerateSuccesses());
 
         /// <inheritdoc cref="Result{TValue}.MapSuccesses(Func{ISuccess, ISuccess})"/>
         public static IResult<TValue> MapSuccesses<TValue>(this IResult<TValue> result, Func<ISuccess, ISuccess> successMapper) =>
             new Result<TValue>()
                 .WithValue(result.ValueOrDefault)
-                .WithErrors(result.Errors)
-                .WithSuccesses(result.Successes.Select(successMapper));
+                .WithErrors(result.EnumerateErrors())
+                .WithSuccesses(result.EnumerateSuccesses().Select(successMapper));
 
         /// <inheritdoc cref="Result{TValue}.ToResult()"/>
         public static IResultBase ToResult<TValue>(this IResult<TValue> result) =>
@@ -455,11 +460,11 @@ namespace FluentResults.Extensions
         /// <inheritdoc cref="Result{TValue}.Map{TNewValue}(Func{TValue, TNewValue})"/>
         public static Result<TNewValue> Map<TValue, TNewValue>(this IResult<TValue> result, Func<TValue, TNewValue> mapLogic)
         {
-            if(result.IsSuccess && mapLogic == null)
+            if(result.IsSuccess() && mapLogic == null)
                 throw new ArgumentException("If result is success then valueConverter should not be null");
 
             return new Result<TNewValue>()
-                   .WithValue(result.IsFailed ? default : mapLogic(result.Value))
+                   .WithValue(result.IsFailed() ? default : mapLogic(result.Value))
                    .WithReasons(result.Reasons);
         }
 
@@ -469,7 +474,7 @@ namespace FluentResults.Extensions
             var out_result = new Result<TNewValue>();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = bind(result.Value);
                 out_result.WithValue(converted.ValueOrDefault);
@@ -485,7 +490,7 @@ namespace FluentResults.Extensions
             var out_result = new Result<TNewValue>();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = await bind(result.Value);
                 out_result.WithValue(converted.ValueOrDefault);
@@ -501,7 +506,7 @@ namespace FluentResults.Extensions
             var out_result = new Result<TNewValue>();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = await bind(result.Value);
                 out_result.WithValue(converted.ValueOrDefault);
@@ -517,7 +522,7 @@ namespace FluentResults.Extensions
             var out_result = new Result();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = action(result.Value);
                 out_result.WithReasons(converted.Reasons);
@@ -532,7 +537,7 @@ namespace FluentResults.Extensions
             var out_result = new Result();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = await action(result.Value);
                 out_result.WithReasons(converted.Reasons);
@@ -547,7 +552,7 @@ namespace FluentResults.Extensions
             var out_result = new Result();
             out_result.WithReasons(result.Reasons);
 
-            if(result.IsSuccess)
+            if(result.IsSuccess())
             {
                 var converted = await action(result.Value);
                 out_result.WithReasons(converted.Reasons);

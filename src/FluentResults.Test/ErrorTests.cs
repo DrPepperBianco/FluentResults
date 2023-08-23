@@ -135,7 +135,7 @@ namespace FluentResults.Test
 
             Result result = error;
 
-            result.IsFailed.Should().Be(true);
+            result.IsFailed().Should().Be(true);
             result.Reasons.Should().HaveCount(1);
             error.Reasons.First().Message.Should().Be("First error message");
         }
@@ -151,7 +151,7 @@ namespace FluentResults.Test
 
             Result result = errors;
 
-            result.IsFailed.Should().Be(true);
+            result.IsFailed().Should().Be(true);
             result.Reasons.Should().HaveCount(2);
             result.Reasons[0].Message.Should().Be("First error message");
             result.Reasons[1].Message.Should().Be("Second error message");
@@ -165,7 +165,7 @@ namespace FluentResults.Test
 
             Result<string> result = error;
 
-            result.IsFailed.Should().Be(true);
+            result.IsFailed().Should().Be(true);
             result.Reasons.Should().HaveCount(1);
             error.Reasons.First().Message.Should().Be("First error message");
         }
@@ -181,7 +181,7 @@ namespace FluentResults.Test
 
             Result<string> result = errors;
 
-            result.IsFailed.Should().Be(true);
+            result.IsFailed().Should().Be(true);
             result.Reasons.Should().HaveCount(2);
             result.Reasons[0].Message.Should().Be("First error message");
             result.Reasons[1].Message.Should().Be("Second error message");

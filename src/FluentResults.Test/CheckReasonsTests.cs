@@ -215,7 +215,7 @@ namespace FluentResults.Test
         {
             var originalResult = Result.Fail(new NotFoundError(1));
             var result = Result.Fail(new NotFoundError(2)
-                    .CausedBy(originalResult.Errors));
+                    .CausedBy(originalResult.Errors()));
 
             result.HasError<NotFoundError>(e => e.Id == 1).Should().BeTrue();
             result.HasError<NotFoundError>(e => e.Id == 2).Should().BeTrue();

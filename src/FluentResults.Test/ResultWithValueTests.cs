@@ -16,12 +16,12 @@ namespace FluentResults.Test
             var okResult = Result.Ok<int>(default);
 
             // Assert
-            okResult.IsFailed.Should().BeFalse();
-            okResult.IsSuccess.Should().BeTrue();
+            okResult.IsFailed().Should().BeFalse();
+            okResult.IsSuccess().Should().BeTrue();
 
             okResult.Reasons.Should().BeEmpty();
-            okResult.Errors.Should().BeEmpty();
-            okResult.Successes.Should().BeEmpty();
+            okResult.Errors().Should().BeEmpty();
+            okResult.Successes().Should().BeEmpty();
             okResult.Value.Should().Be(0);
             okResult.ValueOrDefault.Should().Be(0);
         }
@@ -33,7 +33,7 @@ namespace FluentResults.Test
             var okResult = Result.Ok(5);
 
             // Assert
-            okResult.IsSuccess.Should().BeTrue();
+            okResult.IsSuccess().Should().BeTrue();
             okResult.Value.Should().Be(5);
             okResult.ValueOrDefault.Should().Be(5);
         }
@@ -63,11 +63,11 @@ namespace FluentResults.Test
             okResult.Reasons.First().Should().BeOfType<Success>();
             okResult.Reasons.First().Message.Should().Be("First success message");
 
-            okResult.Successes.Should().HaveCount(1);
-            okResult.Successes.First().Should().BeOfType<Success>();
-            okResult.Successes.First().Message.Should().Be("First success message");
+            okResult.Successes().Should().HaveCount(1);
+            okResult.Successes().First().Should().BeOfType<Success>();
+            okResult.Successes().First().Message.Should().Be("First success message");
 
-            okResult.Errors.Should().BeEmpty();
+            okResult.Errors().Should().BeEmpty();
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace FluentResults.Test
             okResult.Reasons[0].Message.Should().Be("First success message");
             okResult.Reasons[1].Message.Should().Be("Second success message");
 
-            okResult.Errors.Should().BeEmpty();
+            okResult.Errors().Should().BeEmpty();
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace FluentResults.Test
             var result = Result.Fail<int>("Error message");
 
             // Assert
-            result.IsFailed.Should().BeTrue();
+            result.IsFailed().Should().BeTrue();
             result.ValueOrDefault.Should().Be(0);
         }
 
@@ -107,7 +107,7 @@ namespace FluentResults.Test
             var result = Result.Fail<int>(errors);
 
             // Assert
-            result.IsFailed.Should().BeTrue();
+            result.IsFailed().Should().BeTrue();
             result.Reasons.Should().HaveCount(2);
             result.Reasons[0].Should().BeOfType<Error>();
             result.Reasons[1].Should().BeOfType<Error>();
@@ -134,7 +134,7 @@ namespace FluentResults.Test
             var result = Result.Fail<int>(errors);
 
             // Assert
-            result.IsFailed.Should().BeTrue();
+            result.IsFailed().Should().BeTrue();
             result.Reasons.Should().HaveCount(2);
             result.Reasons[0].Should().BeOfType<Error>();
             result.Reasons[1].Should().BeOfType<Error>();
@@ -238,7 +238,7 @@ namespace FluentResults.Test
             var result = valueResult.ToResult();
 
             // Assert
-            result.IsFailed.Should().BeTrue();
+            result.IsFailed().Should().BeTrue();
         }
 
         [Fact]
@@ -250,7 +250,7 @@ namespace FluentResults.Test
             var result = valueResult.ToResult<float>();
 
             // Assert
-            result.IsFailed.Should().BeTrue();
+            result.IsFailed().Should().BeTrue();
         }
 
         [Fact]
@@ -262,7 +262,7 @@ namespace FluentResults.Test
             var result = valueResult.ToResult<float>();
 
             // Assert
-            result.IsFailed.Should().BeTrue();
+            result.IsFailed().Should().BeTrue();
         }
 
         [Fact]
@@ -274,7 +274,7 @@ namespace FluentResults.Test
             var result = valueResult.ToResult<float>(v => v);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
+            result.IsSuccess().Should().BeTrue();
             result.Value.Should().Be(4);
         }
 
@@ -289,8 +289,8 @@ namespace FluentResults.Test
                 var result = valueResult.Bind(Result.Ok);
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("First error message");
             }
@@ -304,8 +304,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(x => Task.FromResult(Result.Ok(x)));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("First error message");
             }
@@ -319,8 +319,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(x => new ValueTask<Result<int>>(Result.Ok(x)));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("First error message");
             }
@@ -334,8 +334,8 @@ namespace FluentResults.Test
                 var result = valueResult.Bind(_ => Result.Ok());
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("First error message");
             }
@@ -349,8 +349,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(_ => Task.FromResult(Result.Ok()));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("First error message");
             }
@@ -364,8 +364,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(_ => new ValueTask<Result>(Result.Ok()));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("First error message");
             }
@@ -379,8 +379,8 @@ namespace FluentResults.Test
                 var result = valueResult.Bind(_ => Result.Fail<string>("Irrelevant error"));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("Original error message");
             }
@@ -394,8 +394,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(_ => Task.FromResult(Result.Fail<string>("Irrelevant error")));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("Original error message");
             }
@@ -409,8 +409,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(_ => Task.FromResult(Result.Fail<string>("Irrelevant error")));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("Original error message");
             }
@@ -424,8 +424,8 @@ namespace FluentResults.Test
                 var result = valueResult.Bind(_ => Result.Fail("Irrelevant error"));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("Original error message");
             }
@@ -439,8 +439,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(_ => Task.FromResult(Result.Fail("Irrelevant error")));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("Original error message");
             }
@@ -454,8 +454,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(_ => new ValueTask<Result>(Result.Fail("Irrelevant error")));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
-                result.Errors.Select(e => e.Message)
+                result.IsFailed().Should().BeTrue();
+                result.Errors().Select(e => e.Message)
                     .Should()
                     .BeEquivalentTo("Original error message");
             }
@@ -471,11 +471,11 @@ namespace FluentResults.Test
                     : Result.Fail<string>("Only one accepted"));
 
                 // Assert
-                result.IsSuccess.Should().BeTrue();
+                result.IsSuccess().Should().BeTrue();
                 result.Value.Should()
                     .Be("One");
 
-                result.Successes.Select(s => s.Message)
+                result.Successes().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("An int", "It is one");
             }
@@ -491,11 +491,11 @@ namespace FluentResults.Test
                     : Result.Fail<string>("Only one accepted")));
 
                 // Assert
-                result.IsSuccess.Should().BeTrue();
+                result.IsSuccess().Should().BeTrue();
                 result.Value.Should()
                     .Be("One");
 
-                result.Successes.Select(s => s.Message)
+                result.Successes().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("An int", "It is one");
             }
@@ -511,11 +511,11 @@ namespace FluentResults.Test
                     : Result.Fail<string>("Only one accepted")));
 
                 // Assert
-                result.IsSuccess.Should().BeTrue();
+                result.IsSuccess().Should().BeTrue();
                 result.Value.Should()
                     .Be("One");
 
-                result.Successes.Select(s => s.Message)
+                result.Successes().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("An int", "It is one");
             }
@@ -529,8 +529,8 @@ namespace FluentResults.Test
                 var result = valueResult.Bind(n => Result.OkIf(n == 1, "Irrelevant").WithSuccess("It is one"));
 
                 // Assert
-                result.IsSuccess.Should().BeTrue();
-                result.Successes.Select(s => s.Message)
+                result.IsSuccess().Should().BeTrue();
+                result.Successes().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("First number", "It is one");
             }
@@ -544,8 +544,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(n => Task.FromResult(Result.OkIf(n == 1, "Irrelevant").WithSuccess("It is one")));
 
                 // Assert
-                result.IsSuccess.Should().BeTrue();
-                result.Successes.Select(s => s.Message)
+                result.IsSuccess().Should().BeTrue();
+                result.Successes().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("First number", "It is one");
             }
@@ -559,8 +559,8 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(n => new ValueTask<Result<string>>(Result.OkIf(n == 1, "Irrelevant").WithSuccess("It is one")));
 
                 // Assert
-                result.IsSuccess.Should().BeTrue();
-                result.Successes.Select(s => s.Message)
+                result.IsSuccess().Should().BeTrue();
+                result.Successes().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("First number", "It is one");
             }
@@ -574,9 +574,9 @@ namespace FluentResults.Test
                 var result = valueResult.Bind(n => Result.Fail<string>("Only one accepted"));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
+                result.IsFailed().Should().BeTrue();
 
-                result.Errors.Select(s => s.Message)
+                result.Errors().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("Only one accepted");
             }
@@ -590,9 +590,9 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(n => Task.FromResult(Result.Fail<string>("Only one accepted")));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
+                result.IsFailed().Should().BeTrue();
 
-                result.Errors.Select(s => s.Message)
+                result.Errors().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("Only one accepted");
             }
@@ -606,9 +606,9 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(n => new ValueTask<Result<string>>(Result.Fail<string>("Only one accepted")));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
+                result.IsFailed().Should().BeTrue();
 
-                result.Errors.Select(s => s.Message)
+                result.Errors().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("Only one accepted");
             }
@@ -622,9 +622,9 @@ namespace FluentResults.Test
                 var result = valueResult.Bind(n => Result.Fail("Only one accepted"));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
+                result.IsFailed().Should().BeTrue();
 
-                result.Errors.Select(s => s.Message)
+                result.Errors().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("Only one accepted");
             }
@@ -638,9 +638,9 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(n => Task.FromResult(Result.Fail("Only one accepted")));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
+                result.IsFailed().Should().BeTrue();
 
-                result.Errors.Select(s => s.Message)
+                result.Errors().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("Only one accepted");
             }
@@ -654,9 +654,9 @@ namespace FluentResults.Test
                 var result = await valueResult.Bind(n => new ValueTask<Result<string>>(Result.Fail("Only one accepted")));
 
                 // Assert
-                result.IsFailed.Should().BeTrue();
+                result.IsFailed().Should().BeTrue();
 
-                result.Errors.Select(s => s.Message)
+                result.Errors().Select(s => s.Message)
                     .Should()
                     .BeEquivalentTo("Only one accepted");
             }
@@ -671,7 +671,7 @@ namespace FluentResults.Test
             Result result = valueResult.ToResult();
 
             // Assert
-            result.IsFailed.Should().BeTrue();
+            result.IsFailed().Should().BeTrue();
         }
 
         [Fact]
@@ -680,7 +680,7 @@ namespace FluentResults.Test
             int Action() => 5;
             var result = Result.Try(Action);
 
-            result.IsSuccess.Should().BeTrue();
+            result.IsSuccess().Should().BeTrue();
             result.Value.Should().Be(5);
         }
 
@@ -692,10 +692,10 @@ namespace FluentResults.Test
 
             var result = Result.Try(Action);
 
-            result.IsFailed.Should().BeTrue();
-            result.Errors.Should().HaveCount(1);
+            result.IsFailed().Should().BeTrue();
+            result.Errors().Should().HaveCount(1);
 
-            var error = (ExceptionalError)result.Errors.First();
+            var error = (ExceptionalError)result.Errors().First();
             error.Message.Should().Be(exception.Message);
             error.Exception.Should().Be(exception);
         }
@@ -708,10 +708,10 @@ namespace FluentResults.Test
 
             var result = Result.Try(Action, _ => new Error("xy"));
 
-            result.IsSuccess.Should().BeFalse();
-            result.Errors.Should().HaveCount(1);
+            result.IsSuccess().Should().BeFalse();
+            result.Errors().Should().HaveCount(1);
 
-            var error = result.Errors.First();
+            var error = result.Errors().First();
             error.Message.Should().Be("xy");
         }
 
@@ -721,7 +721,7 @@ namespace FluentResults.Test
             Task<int> Action() => Task.FromResult(5);
             var result = await Result.Try(Action);
 
-            result.IsSuccess.Should().BeTrue();
+            result.IsSuccess().Should().BeTrue();
             result.Value.Should().Be(5);
         }
 
@@ -731,7 +731,7 @@ namespace FluentResults.Test
             ValueTask<int> Action() => new ValueTask<int>(5);
             var result = await Result.Try(Action);
 
-            result.IsSuccess.Should().BeTrue();
+            result.IsSuccess().Should().BeTrue();
             result.Value.Should().Be(5);
         }
 
@@ -743,10 +743,10 @@ namespace FluentResults.Test
 
             var result = await Result.Try(Action);
 
-            result.IsFailed.Should().BeTrue();
-            result.Errors.Should().HaveCount(1);
+            result.IsFailed().Should().BeTrue();
+            result.Errors().Should().HaveCount(1);
 
-            var error = (ExceptionalError)result.Errors.First();
+            var error = (ExceptionalError)result.Errors().First();
             error.Message.Should().Be(exception.Message);
             error.Exception.Should().Be(exception);
         }
@@ -759,10 +759,10 @@ namespace FluentResults.Test
 
             var result = await Result.Try(Action);
 
-            result.IsFailed.Should().BeTrue();
-            result.Errors.Should().HaveCount(1);
+            result.IsFailed().Should().BeTrue();
+            result.Errors().Should().HaveCount(1);
 
-            var error = (ExceptionalError)result.Errors.First();
+            var error = (ExceptionalError)result.Errors().First();
             error.Message.Should().Be(exception.Message);
             error.Exception.Should().Be(exception);
         }
@@ -775,10 +775,10 @@ namespace FluentResults.Test
 
             var result = await Result.Try(Action, _ => new Error("xy"));
 
-            result.IsSuccess.Should().BeFalse();
-            result.Errors.Should().HaveCount(1);
+            result.IsSuccess().Should().BeFalse();
+            result.Errors().Should().HaveCount(1);
 
-            var error = result.Errors.First();
+            var error = result.Errors().First();
             error.Message.Should().Be("xy");
         }
 
@@ -790,10 +790,10 @@ namespace FluentResults.Test
 
             var result = await Result.Try(Action, _ => new Error("xy"));
 
-            result.IsSuccess.Should().BeFalse();
-            result.Errors.Should().HaveCount(1);
+            result.IsSuccess().Should().BeFalse();
+            result.Errors().Should().HaveCount(1);
 
-            var error = result.Errors.First();
+            var error = result.Errors().First();
             error.Message.Should().Be("xy");
         }
 
@@ -804,10 +804,10 @@ namespace FluentResults.Test
 
             Result<string> result = value;
 
-            result.IsSuccess.Should().BeTrue();
-            result.IsFailed.Should().BeFalse();
+            result.IsSuccess().Should().BeTrue();
+            result.IsFailed().Should().BeFalse();
             result.Reasons.Should().BeEmpty();
-            result.Errors.Should().BeEmpty();
+            result.Errors().Should().BeEmpty();
 
             result.Value.Should().Be(value);
             result.Value.Should().BeOfType<string>();
@@ -821,10 +821,10 @@ namespace FluentResults.Test
         {
             Result<object> result = (object)null;
 
-            result.IsSuccess.Should().BeTrue();
-            result.IsFailed.Should().BeFalse();
+            result.IsSuccess().Should().BeTrue();
+            result.IsFailed().Should().BeFalse();
             result.Reasons.Should().BeEmpty();
-            result.Errors.Should().BeEmpty();
+            result.Errors().Should().BeEmpty();
 
             result.Value.Should().BeNull();
             result.ValueOrDefault.Should().BeNull();
@@ -835,10 +835,10 @@ namespace FluentResults.Test
         {
             Result<object> result = new Result<int>().WithValue(42);
 
-            result.IsSuccess.Should().BeTrue();
-            result.IsFailed.Should().BeFalse();
+            result.IsSuccess().Should().BeTrue();
+            result.IsFailed().Should().BeFalse();
             result.Reasons.Should().BeEmpty();
-            result.Errors.Should().BeEmpty();
+            result.Errors().Should().BeEmpty();
 
             result.Value.Should().NotBeNull();
             result.ValueOrDefault.Should().NotBeNull();
@@ -850,9 +850,9 @@ namespace FluentResults.Test
         {
             Result<object> result = new Result<int>().WithValue(42).WithReason(new SuccessTests.CustomSuccess());
 
-            result.IsSuccess.Should().BeTrue();
-            result.IsFailed.Should().BeFalse();
-            result.Errors.Should().BeEmpty();
+            result.IsSuccess().Should().BeTrue();
+            result.IsFailed().Should().BeFalse();
+            result.Errors().Should().BeEmpty();
 
             result.Value.Should().NotBeNull();
             result.ValueOrDefault.Should().NotBeNull();
@@ -867,14 +867,14 @@ namespace FluentResults.Test
         {
             Result<object> result = new Result<int>().WithValue(42).WithError("foo");
 
-            result.IsSuccess.Should().BeFalse();
-            result.IsFailed.Should().BeTrue();
+            result.IsSuccess().Should().BeFalse();
+            result.IsFailed().Should().BeTrue();
 
             result.Reasons.Should().ContainSingle();
             result.Reasons.Should().AllBeEquivalentTo(new Error("foo"));
 
-            result.Errors.Should().ContainSingle();
-            result.Errors.Should().AllBeEquivalentTo(new Error("foo"));
+            result.Errors().Should().ContainSingle();
+            result.Errors().Should().AllBeEquivalentTo(new Error("foo"));
         }
 
         [Fact]

@@ -7,10 +7,10 @@ namespace FluentResults.Samples.WebController
     {
         public static ResultDto ToResultDto(this Result result)
         {
-            if (result.IsSuccess)
+            if (result.IsSuccess())
                 return new ResultDto(true, Enumerable.Empty<ErrorDto>());
 
-            return new ResultDto(false, TransformErrors(result.Errors));
+            return new ResultDto(false, TransformErrors(result.EnumerateErrors().ToList()));
         }
 
         private static IEnumerable<ErrorDto> TransformErrors(List<IError> errors)

@@ -17,8 +17,8 @@ namespace FluentResults.Test
 
             var mergedResult = results.Merge();
 
-            mergedResult.IsFailed.Should().BeTrue();
-            mergedResult.Errors.Should().HaveCount(1);
+            mergedResult.IsFailed().Should().BeTrue();
+            mergedResult.Errors().Should().HaveCount(1);
         }
 
         [Fact]
@@ -32,8 +32,8 @@ namespace FluentResults.Test
 
             var mergedResult = results.Merge();
 
-            mergedResult.IsFailed.Should().BeTrue();
-            mergedResult.Errors.Should().HaveCount(1);
+            mergedResult.IsFailed().Should().BeTrue();
+            mergedResult.Errors().Should().HaveCount(1);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace FluentResults.Test
 
             var mergedResult = results.Merge();
 
-            mergedResult.IsSuccess.Should().BeTrue();
+            mergedResult.IsSuccess().Should().BeTrue();
             mergedResult.Value.Should().HaveCount(2);
             mergedResult.Value.Should().BeEquivalentTo(new[]
             {

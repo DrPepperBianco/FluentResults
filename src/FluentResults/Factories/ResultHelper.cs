@@ -20,14 +20,14 @@ namespace FluentResults
             var finalResult = Result.Ok<IEnumerable<TValue>>(new List<TValue>())
                                     .WithReasons(resultList.SelectMany(result => result.Reasons));
 
-            if (finalResult.IsSuccess)
+            if (finalResult.IsSuccess())
                 finalResult.WithValue(resultList.Select(r => r.Value).ToList());
 
             return finalResult;
         }
 
         public static bool HasError<TError>(
-            List<IError> errors,
+            IReadOnlyList<IError> errors,
             Func<TError, bool> predicate,
             out IEnumerable<TError> result)
             where TError : IError
@@ -53,7 +53,7 @@ namespace FluentResults
         }
 
         public static bool HasException<TException>(
-            List<IError> errors,
+            IReadOnlyList<IError> errors,
             Func<TException, bool> predicate,
             out IEnumerable<IError> result)
             where TException : Exception
@@ -83,7 +83,7 @@ namespace FluentResults
         }
 
         public static bool HasSuccess<TSuccess>(
-            List<ISuccess> successes, 
+            IReadOnlyList<ISuccess> successes, 
             Func<TSuccess, bool> predicate,
             out IEnumerable<TSuccess> result) where TSuccess : ISuccess
         {

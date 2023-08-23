@@ -20,7 +20,7 @@
                 ValidateNumber(number));
 
             // Return failed result if passed parameters are invalid
-            if (validationResult.IsFailed)
+            if (validationResult.IsFailed())
                 return validationResult;
 
             return Result.Ok(new Address
