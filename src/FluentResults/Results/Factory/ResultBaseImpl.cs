@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using FluentResults;
+using System.Collections.Generic;
 using System.Linq;
 
-// ReSharper disable once CheckNamespace
-namespace FluentResults.Implementations;
+namespace FluentResults.Factory;
 
 /// <summary>
 /// Standard-Implementierung von <see cref="IResultBase"/>
@@ -22,6 +22,6 @@ public sealed class ResultBaseImpl : IResultBase
             ? $", Reasons='{ReasonFormat.ReasonsToString(Reasons)}'"
             : string.Empty;
 
-        return $"Result: IsSuccess='{this.IsSuccess()}'{reasonsString}";
+        return $"Result: IsSuccess='{this.IsSuccess}'{reasonsString}";
     }
 }

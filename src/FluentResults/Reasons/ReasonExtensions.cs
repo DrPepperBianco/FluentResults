@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 // ReSharper disable once CheckNamespace
 namespace FluentResults
@@ -43,6 +44,36 @@ namespace FluentResults
                 return predicate(actualValue);
 
             return false;
+        }
+
+        extension<TReason>(TReason self) where TReason : IReason
+        {
+
+
+            #region Overloads of "WithMetadata"
+
+            /// <summary>
+            /// Set the metadata
+            /// </summary>
+            public TReason WithMetadata(string metadataName, object metadataValue)
+            {
+                self.Metadata.Add(metadataName, metadataValue);
+                return self;
+            }
+
+            /// <summary>
+            /// Set the metadata
+            /// </summary>
+            public TReason WithMetadata(Dictionary<string, object> metadata)
+            {
+                foreach(var metadataItem in metadata)
+                {
+                    self.Metadata.Add(metadataItem.Key, metadataItem.Value);
+                }
+
+                return self;
+            }
+            #endregion
         }
     }
 }

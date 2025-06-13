@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using FluentResults.Results.Factory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,6 +89,16 @@ public class ResultFactoryAndCovarianceTests
         // ↓ doesn’t work, because IResult<Trabant> cannot be cast to IResult<ICar>,
         //   because Trabant is a struct and had to be boxed to be cast to ICar.
         // IResult<ICar> result = ResultFactory.CreateEmptyResult<Trabant>(new Trabant());
+    }
+
+    [Fact]
+    public void Test42()
+    {
+        var data = Enumerable.Range(0, 42).Select(i => Result.Ok(i));
+        var actual = data.Merge2();
+
+        Assert.True(actual.IsSuccess);
+        Assert.True(actual.Value is IEnumerable<int> ints && ints.ToArray() is { Length: 42 });
     }
 
 

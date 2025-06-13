@@ -1,4 +1,5 @@
 ﻿using FluentResults.Extensions;
+using FluentResults.Results.Factory;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace FluentResults;
+namespace FluentResults.Factory;
 
-using Implementations;
 
 /// <summary>
 /// Creates <see cref="IResultBase"/> and <see cref="IResult{TValue}"/>
 /// </summary>
-public static class ResultFactory
+internal static class ResultFactory
 {
     /// <summary>
     /// Creates an empty result object.

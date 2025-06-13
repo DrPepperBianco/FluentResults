@@ -1,10 +1,11 @@
 ﻿#nullable enable
+using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace FluentResults.Implementations;
+namespace FluentResults.Factory;
 
 /// <summary>
 /// Implementierung von <see cref="IResult{TValue}"/>
@@ -28,7 +29,7 @@ public sealed class ResultImpl<TValue>(TValue? valueOrDefault) :
             ? $", Reasons='{ReasonFormat.ReasonsToString(Reasons)}'"
             : string.Empty;
 
-        var baseString = $"Result: IsSuccess='{this.IsSuccess()}'{reasonsString}";
+        var baseString = $"Result: IsSuccess='{this.IsSuccess}'{reasonsString}";
         var valueString = ValueOrDefault.ToLabelValueStringOrEmpty("Value");
         return $"{baseString}, {valueString}";
     }

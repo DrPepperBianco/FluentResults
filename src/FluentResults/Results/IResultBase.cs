@@ -18,32 +18,33 @@ public interface IResultBase
 }
 
 /// <summary>
-/// Direkte Erweiterungs-Methoden für <see cref="IResultBase"/>
+/// Most important extensions methods for <see cref="IResultBase"/>
 /// </summary>
 public static partial class ResultBaseExt
 {
-    /// <summary>
-    /// Is true if Reasons contains at least one error
-    /// </summary>
-    public static bool IsFailed(this IResultBase result) =>
-        result.Reasons.OfType<IError>().Any();
+    /// <remarks/>
+    extension(IResultBase self)
+    {
+        /// <summary>
+        /// Is true if Reasons contains at least one error
+        /// </summary>
+        public bool IsFailed => self.Reasons.OfType<IError>().Any();
 
-    /// <summary>
-    /// Is true if Reasons contains no errors
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsSuccess(this IResultBase result) =>
-        !IsFailed(result);
+        /// <summary>
+        /// Is true if Reasons contains no errors
+        /// </summary>
+        public bool IsSuccess => !self.IsFailed;
 
-    /// <summary>
-    /// Get all errors
-    /// </summary>
-    public static IEnumerable<IError> GetErrors(this IResultBase result) =>
-        result.Reasons.OfType<IError>();
+        /// <summary>
+        /// Get all errors
+        /// </summary>
+        public IReadOnlyList<IError> Errors =>
+            [.. self.Reasons.OfType<IError>()];
 
-    /// <summary>
-    /// Get all successes
-    /// </summary>
-    public static IEnumerable<ISuccess> GetSuccesses(this IResultBase result) =>
-        result.Reasons.OfType<ISuccess>();
+        /// <summary>
+        /// Get all successes
+        /// </summary>
+        public IReadOnlyList<ISuccess> Successes =>
+            [.. self.Reasons.OfType<ISuccess>()];
+    }
 }

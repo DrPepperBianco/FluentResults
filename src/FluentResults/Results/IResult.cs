@@ -18,7 +18,7 @@ public interface IResult<out TValue> : IResultBase
     /// <remarks>
     /// Unless <typeparamref name="TValue"/> is explicitly nullable this interface
     /// assumes, that <see cref="ValueOrDefault"/> is not null, as long as 
-    /// <see cref="ResultBaseExt_MappingAndBind.IsFailed(IResultBase)"/> is false.
+    /// <see cref="ResultBaseExt.get_IsFailed(IResultBase) "/> is false.
     /// </remarks>
     TValue? ValueOrDefault { get; }
 }
@@ -28,29 +28,34 @@ public interface IResult<out TValue> : IResultBase
 /// </summary>
 public static partial class ResultExt
 {
-    /// <summary>
-    /// Gibt den Wert des Results zurück.
-    /// Wirft Exception, wenn Result IsFailed() is.
-    /// </summary>
-    /// <typeparam name="TValue"></typeparam>
-    public static TValue GetValue<TValue>(this IResult<TValue> result)
+    /// <remarks/>
+    extension<TValue>(IResult<TValue> self)
     {
-        result.ThrowIfFailed();
-        
-        // We assume, that valueOrDefault is not null,
-        // if Result is not failed.
-        //
-        // We don’t check that, because otherwise results like
-        // `IResult<string?>` wouldn’t work anymore.
-        //
-        return result.ValueOrDefault!;
+        /// <summary>
+        /// Get the Value. If result is failed then an Exception is thrown because a failed result has no value. Opposite see property ValueOrDefault.
+        /// </summary>
+        public TValue Value
+        {
+            get
+            {
+                self.ThrowIfFailed();
+
+                // We assume, that valueOrDefault is not null,
+                // if Result is not failed.
+                //
+                // We don’t check that, because otherwise results like
+                // `IResult<string?>` wouldn’t work anymore.
+                //
+                return self.ValueOrDefault!;
+            }
+        }
     }
 
     private static void ThrowIfFailed<TValue>(this IResult<TValue> result)
     {
-        if(result.IsFailed())
+        if(result.IsFailed)
             throw new InvalidOperationException(
                 $"Result is in status failed. Value is not set. Having: {
-                    ReasonFormat.ErrorReasonsToString(result.GetErrors().ToList())}");
+                    ReasonFormat.ErrorReasonsToString(result.Errors)}");
     }
 }

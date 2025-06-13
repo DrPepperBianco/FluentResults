@@ -3,6 +3,7 @@ using FluentResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentResults.Results.Factory;
 
 // ReSharper disable once CheckNamespace
 namespace FluentResults
@@ -19,7 +20,7 @@ namespace FluentResults
         public static IResult<IReadOnlyList<TValue>> MergeWithValue<TValue>(
             IEnumerable<IResult<TValue>> results)
         {
-            var merged = results.Merge();
+            var merged = ResultHelper.Merge(results);
 
             IReadOnlyList<TValue> value =
                 merged.IsSuccess() ?

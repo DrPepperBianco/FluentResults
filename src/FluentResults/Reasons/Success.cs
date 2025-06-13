@@ -36,28 +36,6 @@ namespace FluentResults
         }
 
         /// <summary>
-        /// Set the metadata
-        /// </summary>
-        public Success WithMetadata(string metadataName, object metadataValue)
-        {
-            Metadata.Add(metadataName, metadataValue);
-            return this;
-        }
-
-        /// <summary>
-        /// Set the metadata
-        /// </summary>
-        public Success WithMetadata(Dictionary<string, object> metadata)
-        {
-            foreach (var metadataItem in metadata)
-            {
-                Metadata.Add(metadataItem.Key, metadataItem.Value);
-            }
-            
-            return this;
-        }
-
-        /// <summary>
         /// ToString override
         /// </summary>
         /// <returns></returns>
