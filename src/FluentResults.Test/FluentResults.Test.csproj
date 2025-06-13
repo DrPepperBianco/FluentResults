@@ -2,7 +2,38 @@
 
   <PropertyGroup>    
     <TargetFrameworks>net48;net8.0</TargetFrameworks>
+    <LangVersion>13</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="CheckReasonsTests.cs" />
+    <Compile Remove="ErrorStringifyTests.cs" />
+    <Compile Remove="ErrorTests.cs" />
+    <Compile Remove="MergeTests.cs" />
+    <Compile Remove="Playground.cs" />
+    <Compile Remove="ResultLoggingTests.cs" />
+    <Compile Remove="ResultStringifyTests.cs" />
+    <Compile Remove="ResultTValueExtensionsTests.cs" />
+    <Compile Remove="ResultWithoutValueTests.cs" />
+    <Compile Remove="ResultWithValueTests.cs" />
+    <Compile Remove="SuccessStringifyTests.cs" />
+    <Compile Remove="SuccessTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="CheckReasonsTests.cs" />
+    <None Include="ErrorStringifyTests.cs" />
+    <None Include="ErrorTests.cs" />
+    <None Include="MergeTests.cs" />
+    <None Include="Playground.cs" />
+    <None Include="ResultLoggingTests.cs" />
+    <None Include="ResultStringifyTests.cs" />
+    <None Include="ResultTValueExtensionsTests.cs" />
+    <None Include="ResultWithoutValueTests.cs" />
+    <None Include="ResultWithValueTests.cs" />
+    <None Include="SuccessStringifyTests.cs" />
+    <None Include="SuccessTests.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />

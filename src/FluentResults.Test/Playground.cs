@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentResults.Extensions;
@@ -110,12 +110,12 @@ namespace FluentResults.Test
             var r2 = await r.Bind(v => GetVResultAsync());
         }
 
-        private Result GetResult() => Result.Ok();
+        private IResultBase GetResult() => Result.Ok();
 
-        private Result<int> GetVResult() => Result.Ok(1);
+        private IResult<int> GetVResult() => Result.Ok(1);
 
-        private Task<Result> GetResultAsync() => Task.FromResult(GetResult());
+        private Task<IResultBase> GetResultAsync() => Task.FromResult(GetResult());
 
-        private Task<Result<int>> GetVResultAsync() => Task.FromResult(GetVResult());
+        private Task<IResult<int>> GetVResultAsync() => Task.FromResult(GetVResult());
     }
 }

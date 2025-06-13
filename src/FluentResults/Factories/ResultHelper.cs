@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FluentResults.Extensions;
+using FluentResults;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,46 +9,49 @@ namespace FluentResults
 {
     internal static class ResultHelper
     {
-        public static Result Merge(IEnumerable<ResultBase> results)
+        public static IResultBase Merge(IEnumerable<IResultBase> results)
         {
-            return Result.Ok().WithReasons(results.SelectMany(result => result.Reasons));
+            return results.Aggregate(
+                ResultFactory.CreateEmptyResult(),
+                (r, result) => r.WithReasons(result.Reasons));
         }
 
-        public static Result<IEnumerable<TValue>> MergeWithValue<TValue>(
-            IEnumerable<Result<TValue>> results)
+        public static IResult<IReadOnlyList<TValue>> MergeWithValue<TValue>(
+            IEnumerable<IResult<TValue>> results)
         {
-            var resultList = results.ToList();
+            var merged = results.Merge();
 
-            var finalResult = Result.Ok<IEnumerable<TValue>>(new List<TValue>())
-                .WithReasons(resultList.SelectMany(result => result.Reasons));
+            IReadOnlyList<TValue> value =
+                merged.IsSuccess() ?
+                [.. results.Select(x => x.ValueOrDefault)] :
+                [];
 
-            if (finalResult.IsSuccess)
-                finalResult.WithValue(resultList.Select(r => r.Value).ToList());
-
-            return finalResult;
+            return merged.WithValue(value);
         }
 
         public static bool HasError<TError>(
             List<IError> errors,
             Func<TError, bool> predicate,
-            out IEnumerable<TError> result)
+            out IReadOnlyList<TError> result)
             where TError : IError
         {
-            var foundErrors = errors.OfType<TError>().Where(predicate).ToList();
-            if (foundErrors.Any())
+            result = [.. errors.OfType<TError>().Where(predicate)];
+            if(result.Any())
             {
-                result = foundErrors;
                 return true;
             }
 
-            foreach (var error in errors)
-                if (HasError(error.Reasons ?? new List<IError>(), predicate, out var fErrors))
+            // Recursive call:
+            foreach(var error in errors)
+            {
+                if(HasError(error.Reasons ?? new List<IError>(), predicate, out result))
                 {
-                    result = fErrors;
                     return true;
                 }
+            }
 
-            result = Array.Empty<TError>();
+            // Return empty list and false
+            result = [];
             return false;
         }
 

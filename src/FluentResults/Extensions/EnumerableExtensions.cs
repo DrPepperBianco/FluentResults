@@ -11,7 +11,7 @@ namespace FluentResults
         /// <summary>
         /// Merge multiple result objects to one result together
         /// </summary>
-        public static Result Merge(this IEnumerable<Result> results)
+        public static IResultBase Merge(this IEnumerable<IResultBase> results)
         {
             return ResultHelper.Merge(results);
         }
@@ -19,7 +19,7 @@ namespace FluentResults
         /// <summary>
         /// Merge multiple result objects to one result together
         /// </summary>
-        public static Result<IEnumerable<TValue>> Merge<TValue>(this IEnumerable<Result<TValue>> results)
+        public static IResult<IEnumerable<TValue>> Merge<TValue>(this IEnumerable<IResult<TValue>> results)
         {
             return ResultHelper.MergeWithValue(results);
         }

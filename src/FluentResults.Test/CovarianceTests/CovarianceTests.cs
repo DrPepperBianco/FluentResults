@@ -9,7 +9,7 @@ using Xunit;
 
 namespace FluentResults.Test
 {
-    public class CovarianceTests
+    public class CovarianceTests_
     {
         public interface IInterfaceA { }
         public interface IInterfaceB : IInterfaceA { }

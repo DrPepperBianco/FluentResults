@@ -1,4 +1,5 @@
-using FluentAssertions;
+﻿using FluentAssertions;
+using FluentResults.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1070,9 +1071,9 @@ namespace FluentResults.Test
             ((object)result.Value).Should().BeOfType(typeof(string));
         }
 
-        private static Result<dynamic> DynamicConvert(dynamic source, Type dest)
+        private static IResult<dynamic> DynamicConvert(dynamic source, Type dest)
         {
-            var result = new Result<dynamic>();
+            var result = ResultFactory.CreateEmptyResult<dynamic>(default!);
             var converted = Convert.ChangeType(source, dest);
             var x = result.WithValue(converted);
             return x;
