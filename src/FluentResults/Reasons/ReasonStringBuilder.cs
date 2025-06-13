@@ -32,7 +32,7 @@ namespace FluentResults
         /// <returns>A reference to the current Builder</returns>
         public ReasonStringBuilder WithInfo(string label, string value)
         {
-            var infoString = value.ToLabelValueStringOrEmpty(label);
+            var infoString = ToLabelValueStringOrEmpty(value, label);
 
             if(!string.IsNullOrEmpty(infoString))
             {
@@ -58,6 +58,23 @@ namespace FluentResults
         private static string ReasonInfosToString(List<string> reasonInfos)
         {
             return string.Join(", ", reasonInfos);
+        }
+
+        internal static string ToLabelValueStringOrEmpty(object value, string label)
+        {
+            if(value == null)
+            {
+                return string.Empty;
+            }
+
+            var valueText = value.ToString();
+
+            if(valueText == string.Empty)
+            {
+                return string.Empty;
+            }
+
+            return $"{label}='{valueText}'";
         }
     }
 }

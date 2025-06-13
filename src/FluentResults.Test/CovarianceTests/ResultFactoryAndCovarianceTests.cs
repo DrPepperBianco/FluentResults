@@ -1,5 +1,5 @@
 ﻿using FluentResults;
-using FluentResults.Results.Factory;
+using FluentResults.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,10 +95,16 @@ public class ResultFactoryAndCovarianceTests
     public void Test42()
     {
         var data = Enumerable.Range(0, 42).Select(i => Result.Ok(i));
-        var actual = data.Merge2();
+        var actual = data.Merge();
 
         Assert.True(actual.IsSuccess);
         Assert.True(actual.Value is IEnumerable<int> ints && ints.ToArray() is { Length: 42 });
+
+        var outcome = actual switch
+        {
+            { IsFailed: true } => false,
+            _ => true
+        };
     }
 
 

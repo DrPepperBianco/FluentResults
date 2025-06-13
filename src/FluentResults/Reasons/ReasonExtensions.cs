@@ -46,7 +46,7 @@ namespace FluentResults
             return false;
         }
 
-        extension<TReason>(TReason self) where TReason : IReason
+    extension<TReason>(TReason self) where TReason : IReason
         {
 
 

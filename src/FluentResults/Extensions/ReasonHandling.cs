@@ -5,13 +5,14 @@ using System.Text;
 
 namespace FluentResults;
 
+using Factories;
+
 /// <summary>
 /// Etensions methods to interact with the Reasons
 /// </summary>
 public static class ResultReasonHandling
 {
-    /// <param name="result">Result</param>
-    extension(IResultBase result)
+    extension(IResult result)
     {
         /// <summary>
         /// Check if the result object contains an successes from a specific type

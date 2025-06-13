@@ -7,10 +7,21 @@ using System.Text;
 namespace FluentResults;
 
 /// <summary>
+/// Definition of a ResultBase
+/// </summary>
+public interface IResult
+{
+    /// <summary>
+    /// Get all reasons (errors and successes)
+    /// </summary>
+    List<IReason> Reasons { get; }
+}
+
+/// <summary>
 /// Definition of a result with a value of type <typeparamref name="TValue"/>
 /// </summary>
 /// <typeparam name="TValue">The type of the value</typeparam>
-public interface IResult<out TValue> : IResultBase
+public interface IResult<out TValue> : IResult
 {
     /// <summary>
     /// Get the Value. If result is failed then a default value is returned. Opposite see property Value.
@@ -18,17 +29,44 @@ public interface IResult<out TValue> : IResultBase
     /// <remarks>
     /// Unless <typeparamref name="TValue"/> is explicitly nullable this interface
     /// assumes, that <see cref="ValueOrDefault"/> is not null, as long as 
-    /// <see cref="ResultBaseExt.get_IsFailed(IResultBase) "/> is false.
+    /// <see cref="ResultExt.get_IsFailed(IResult) "/> is false.
     /// </remarks>
     TValue? ValueOrDefault { get; }
 }
 
 /// <summary>
-/// Erweiterungen für <see cref="IResult{TValue}"/>
+/// Most important extensions methods for <see cref="IResult"/> 
+/// and <see cref="IResult{TValue}"/>
 /// </summary>
 public static partial class ResultExt
 {
-    /// <remarks/>
+    /// <summary>Extensions for IResult</summary>
+    extension(IResult self)
+    {
+        /// <summary>
+        /// Is true if Reasons contains at least one error
+        /// </summary>
+        public bool IsFailed => self.Reasons.OfType<IError>().Any();
+
+        /// <summary>
+        /// Is true if Reasons contains no errors
+        /// </summary>
+        public bool IsSuccess => !self.IsFailed;
+
+        /// <summary>
+        /// Get all errors
+        /// </summary>
+        public IReadOnlyList<IError> Errors =>
+            [.. self.Reasons.OfType<IError>()];
+
+        /// <summary>
+        /// Get all successes
+        /// </summary>
+        public IReadOnlyList<ISuccess> Successes =>
+            [.. self.Reasons.OfType<ISuccess>()];
+    }
+
+    /// <summary>Extensions for IResult{T}</summary>
     extension<TValue>(IResult<TValue> self)
     {
         /// <summary>

@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace FluentResults.Factory;
+namespace FluentResults.Factories;
 
 /// <summary>
 /// Implementierung von <see cref="IResult{TValue}"/>
 /// </summary>
-public sealed class ResultImpl<TValue>(TValue? valueOrDefault) : 
+internal sealed class ResultImpl<TValue>(TValue? valueOrDefault) : 
     IResult<TValue>
 {
     /// <inheritdoc/>
@@ -30,7 +30,7 @@ public sealed class ResultImpl<TValue>(TValue? valueOrDefault) :
             : string.Empty;
 
         var baseString = $"Result: IsSuccess='{this.IsSuccess}'{reasonsString}";
-        var valueString = ValueOrDefault.ToLabelValueStringOrEmpty("Value");
+        var valueString = ReasonStringBuilder.ToLabelValueStringOrEmpty(ValueOrDefault, "Value");
         return $"{baseString}, {valueString}";
     }
 

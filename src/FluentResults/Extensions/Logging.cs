@@ -10,7 +10,7 @@ namespace FluentResults;
 /// </summary>
 public static class ResultLogging
 {
-    extension<TResult>(TResult result) where TResult : IResultBase
+    extension<TResult>(TResult result) where TResult : IResult
     {
         /// <summary>
         /// Log the result. Configure the logger via Result.Setup(..)
@@ -84,13 +84,12 @@ public static class ResultLogging
         }
     }
 
-    /// <param name="result">Result without value</param>
-    extension(IResultBase result)
+    extension(IResult result)
     {
         /// <summary>
         /// Log the result with a typed context. Configure the logger via Result.Setup(..)
         /// </summary>
-        public IResultBase LogWithContext<TContext>(LogLevel logLevel = LogLevel.Information)
+        public IResult LogWithContext<TContext>(LogLevel logLevel = LogLevel.Information)
         {
             return result.LogWithContext<TContext>(null, logLevel);
         }
@@ -98,37 +97,37 @@ public static class ResultLogging
         /// <summary>
         /// Log the result with a typed context. Configure the logger via Result.Setup(..)
         /// </summary>
-        public IResultBase LogWithContext<TContext>(string content, LogLevel logLevel = LogLevel.Information)
+        public IResult LogWithContext<TContext>(string content, LogLevel logLevel = LogLevel.Information)
         {
             var logger = Result.Settings.Logger;
 
             logger.Log<TContext>(content, result, logLevel);
 
-            return (IResultBase)result;
+            return (IResult)result;
         }
 
 
         /// <summary>
         /// Log the result with a typed context only when it is successful. Configure the logger via Result.Setup(..)
         /// </summary>
-        public IResultBase LogWithContextIfSuccess<TContext>(string content = null, LogLevel logLevel = LogLevel.Information)
+        public IResult LogWithContextIfSuccess<TContext>(string content = null, LogLevel logLevel = LogLevel.Information)
         {
             if(result.IsSuccess)
                 return result.LogWithContext<TContext>(content, logLevel);
 
-            return (IResultBase)result;
+            return (IResult)result;
         }
 
 
         /// <summary>
         /// Log the result with a typed context only when it is failed. Configure the logger via Result.Setup(..)
         /// </summary>
-        public IResultBase LogWithContextIfFailed<TContext>(string content = null, LogLevel logLevel = LogLevel.Error)
+        public IResult LogWithContextIfFailed<TContext>(string content = null, LogLevel logLevel = LogLevel.Error)
         {
             if(result.IsFailed)
                 return result.LogWithContext<TContext>(content, logLevel);
 
-            return (IResultBase)result;
+            return (IResult)result;
         }
     }
 }

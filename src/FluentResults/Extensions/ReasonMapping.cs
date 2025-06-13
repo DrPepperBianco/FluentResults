@@ -1,10 +1,11 @@
-﻿using FluentResults.Results.Factory;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace FluentResults;
+
+using Factories;
 
 /// <summary>
 /// Contains extension methods für IResult and IResult{T} regarding
@@ -12,8 +13,7 @@ namespace FluentResults;
 /// </summary>
 public static class ResultReasonsMappings
 {
-    /// <summary>Mappings für IResultBase</summary>
-    extension(IResultBase result)
+    extension(IResult result)
     {
 
         /// <summary>
@@ -21,7 +21,7 @@ public static class ResultReasonsMappings
         /// </summary>
         /// <param name="errorMapper"></param>
         /// <returns></returns>
-        public IResultBase MapErrors(Func<IError, IError> errorMapper)
+        public IResult MapErrors(Func<IError, IError> errorMapper)
         {
             if(result.IsSuccess)
                 return result;
@@ -35,7 +35,7 @@ public static class ResultReasonsMappings
         /// <summary>
         /// Map all successes of the result via successMapper
         /// </summary>
-        public IResultBase MapSuccesses(Func<ISuccess, ISuccess> successMapper)
+        public IResult MapSuccesses(Func<ISuccess, ISuccess> successMapper)
         {
             return ResultFactory
                 .CreateEmptyResult()
@@ -44,7 +44,6 @@ public static class ResultReasonsMappings
         }
     }
 
-    /// <summary>Mappings für IResult{TValue}</summary>
     extension<TValue>(IResult<TValue> result)
     {
 

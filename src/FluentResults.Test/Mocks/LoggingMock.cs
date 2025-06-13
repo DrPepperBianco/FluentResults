@@ -4,7 +4,7 @@ namespace FluentResults.Test.Mocks
 {
     public class LoggingMock : IResultLogger
     {
-        public void Log(string context, string content, IResultBase result, LogLevel logLevel = LogLevel.Information)
+        public void Log(string context, string content, IResult result, LogLevel logLevel = LogLevel.Information)
         {
             LoggedContext = context;
             LoggedContent = content;
@@ -12,7 +12,7 @@ namespace FluentResults.Test.Mocks
             LoggedLevel = logLevel;
         }
 
-        public void Log<TContext>(string content, IResultBase result, LogLevel logLevel = LogLevel.Information)
+        public void Log<TContext>(string content, IResult result, LogLevel logLevel = LogLevel.Information)
         {
             LoggedContext = typeof(TContext).ToString();
             LoggedContent = content;
@@ -22,7 +22,7 @@ namespace FluentResults.Test.Mocks
 
         public string LoggedContext { get; private set; }
         public string LoggedContent { get; private set; }
-        public IResultBase LoggedResult { get; private set; }
+        public IResult LoggedResult { get; private set; }
         public LogLevel LoggedLevel { get; private set; }
     }
 }

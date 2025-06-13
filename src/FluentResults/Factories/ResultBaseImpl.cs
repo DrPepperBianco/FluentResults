@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FluentResults.Factory;
+namespace FluentResults.Factories;
 
 /// <summary>
-/// Standard-Implementierung von <see cref="IResultBase"/>
+/// Standard-Implementierung von <see cref="IResult"/>
 /// </summary>
-public sealed class ResultBaseImpl : IResultBase
+internal sealed class ResultBaseImpl : IResult
 {
     /// <inheritdoc/>
     public List<IReason> Reasons { get; } = new();

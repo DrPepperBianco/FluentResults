@@ -1,17 +1,17 @@
-﻿using FluentResults.Results.Factory;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace FluentResults;
+
+using Factories;
 
 /// <summary>
 /// Extension methods for Result, regarding conversions
 /// </summary>
 public static class ResultConversions
 {
-    /// <summary>Conversions, that work for all IResult (with or without value)</summary>
-    extension(IResultBase result)
+    extension(IResult result)
     {
         /// <summary>
         /// Convert result without value to a result containing a value
@@ -32,7 +32,7 @@ public static class ResultConversions
         /// Event if called with result without value a new result
         /// object is constructed.
         /// </remarks>
-        public IResultBase ToResult()
+        public IResult ToResult()
         {
             return ResultFactory
                 .CreateEmptyResult()
@@ -65,12 +65,11 @@ public static class ResultConversions
         public void Deconstruct(out bool isSuccess, out bool isFailed, out IReadOnlyList<IError> errors)
         {
             isSuccess = result.IsSuccess;
-            isFailed = result.IsFailed);
+            isFailed = result.IsFailed;
             errors = isFailed ? [.. result.Errors] : [];
         }
     }
 
-    /// <param name="result">Result with value</param>
     extension<TValue>(IResult<TValue> result)
     {
         /// <summary>
@@ -124,9 +123,74 @@ public static class ResultConversions
             Deconstruct(result, out isSuccess, out isFailed, out value);
             errors = isFailed ? [.. result.Errors] : [];
         }
+
+        /// <summary>
+        /// Unwraps the value of the result.
+        /// </summary>
+        /// <remarks>
+        /// if <paramref name="result"/> is successful, it returns its value, otherwise
+        /// <paramref name="onError"/> is called with the erroneous result.
+        /// </remarks>
+        /// <typeparam name="TValue">
+        /// The underlying type of the result.
+        /// </typeparam>
+        /// <param name="result">
+        /// The result, that is to be unwrapped.
+        /// </param>
+        /// <param name="onError">
+        /// Mapper for the result in case of error. 
+        /// (Could also throw an exception instead.)
+        /// </param>
+        /// <returns>
+        /// Return <c>result.Value</c> if result is successful 
+        /// and the result of the call to <paramref name="onError"/>
+        /// if the result is not successful.
+        /// </returns>
+        public TValue Unwrap(Func<IResult<TValue>, TValue> onError)
+        {
+            if(result?.IsSuccess is true)
+            {
+                return result.ValueOrDefault!;
+            }
+            else
+            {
+                return onError(result);
+            }
+        }
+
+        /// <summary>
+        /// Unwraps the value of the result or returns <paramref name="otherValue"/>.
+        /// </summary>
+        /// <remarks>
+        /// if <paramref name="result"/> is successful, it returns its value, otherwise
+        /// <paramref name="otherValue"/> is returned.
+        /// </remarks>
+        /// <typeparam name="TValue">
+        /// The underlying type of the result.
+        /// </typeparam>
+        /// <param name="result">
+        /// The result, that is to be unwrapped.
+        /// </param>
+        /// <param name="otherValue">
+        /// Die other value, that should be used, if the result IsFailed.
+        /// </param>
+        /// <returns>
+        /// Return <c>result.Value</c> if result is successful 
+        /// and <paramref name="otherValue"/> otherwise.
+        /// </returns>
+        public TValue UnwrapOr(TValue otherValue)
+        {
+            if(result?.IsSuccess is true)
+            {
+                return result.ValueOrDefault!;
+            }
+            else
+            {
+                return otherValue;
+            }
+        }
     }
 
-    // <param name="self">The value</param>
     extension<TValue>(TValue self)
     {
         /// <summary>
@@ -139,13 +203,12 @@ public static class ResultConversions
         }
     }
 
-    /// <param name="error">The error</param>
     extension(IError error)
     {
         /// <summary>
-        /// Explicit conversion from <see cref="IError"/> to a <see cref="IResultBase"/>
+        /// Explicit conversion from <see cref="IError"/> to a <see cref="IResult"/>
         /// </summary>
-        public IResultBase ToResult()
+        public IResult ToResult()
         {
             // return Fail(error);
             return ResultFactory
@@ -163,13 +226,12 @@ public static class ResultConversions
         }
     }
 
-    /// <param name="errors">The errors</param>
     extension(IEnumerable<IError> errors)
     {
         /// <summary>
-        /// Explicit conversion from <see cref="IEnumerable{IError}"/> to a <see cref="IResultBase"/>
+        /// Explicit conversion from <see cref="IEnumerable{IError}"/> to a <see cref="IResult"/>
         /// </summary>
-        public IResultBase ToResult()
+        public IResult ToResult()
         {
             return ResultFactory
                 .CreateEmptyResult()
@@ -183,6 +245,28 @@ public static class ResultConversions
             return ResultFactory
                 .CreateEmptyResult<TValue>(default!)
                 .WithErrors(errors);
+        }
+    }
+
+    extension(IEnumerable<IResult> results)
+    {
+        /// <summary>
+        /// Merge multiple result objects to one result together
+        /// </summary>
+        public IResult Merge()
+        {
+            return ResultHelper.Merge(results);
+        }
+    }
+
+    extension<TValue>(IEnumerable<IResult<TValue>> results)
+    {
+        /// <summary>
+        /// Merge multiple result objects to one result together
+        /// </summary>
+        public IResult<IReadOnlyList<TValue>> Merge()
+        {
+            return ResultHelper.MergeWithValue(results);
         }
     }
 }

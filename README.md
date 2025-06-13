@@ -1,13 +1,20 @@
-<img src="https://raw.githubusercontent.com/altmann/FluentResults/master/resources/icons/FluentResults-Icon-64.png" alt="FluentResults"/>
-# FluentResults
+﻿![FluentResults](resources/icons/FluentResults-Icon-64.png "FluentResults")
+# FluentResults.Abstractions
+
+<!-- Original FluentResults stuff, that is for now doesn’t apply for the fork!
 
 [![Nuget downloads](https://img.shields.io/nuget/v/fluentresults.svg)](https://www.nuget.org/packages/FluentResults/)
 [![Nuget](https://img.shields.io/nuget/dt/fluentresults)](https://www.nuget.org/packages/FluentResults/)
 [![Build status](https://dev.azure.com/altmann/FluentResults/_apis/build/status/FluentResults-CI)](https://dev.azure.com/altmann/FluentResults/_build/latest?definitionId=11)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/altmann/FluentResults/blob/master/LICENSE)
 
-**FluentResults is a lightweight .NET library developed to solve a common problem. It returns an object indicating success or failure of an operation instead of throwing/using exceptions.**
+-->
 
+
+
+**FluentResults.Abstractions is a lightweight .NET library developed to solve a common problem. It returns an object indicating success or failure of an operation instead of throwing/using exceptions.**
+
+<!--
 You can install [FluentResults with NuGet](https://www.nuget.org/packages/FluentResults/):
 
 ```
@@ -15,6 +22,9 @@ Install-Package FluentResults
 ```
 
 > :heart: The most needed community feature is pushed to nuget: **[FluentResults.Extensions.AspNetCore](https://www.nuget.org/packages/FluentResults.Extensions.AspNetCore/)** Read [documentation](https://github.com/altmann/FluentResults/wiki/Returning-Result-Objects-from-ASP.NET-Core-Controller). Try it, test it, [give feedback](https://github.com/altmann/FluentResults/issues/149).
+
+-->
+
 
 ## Key Features
 
@@ -27,6 +37,7 @@ Install-Package FluentResults
   - .NET Standard, .NET Core, .NET 5+ and .NET Full Framework support (details see [.NET Targeting](https://github.com/altmann/FluentResults#net-targeting))
   - SourceLink support
   - powerful [code samples](https://github.com/altmann/FluentResults#samplesbest-practices) which show the integration with famous or common frameworks/libraries
+- **NEW** Changed API (against _FluentResults_), now results are represented by interface `IResult` and `IResult<TValue>`, instead of classes `Result` and `Result<TValue>`
 - **NEW** Enhanced [FluentAssertions Extension](https://github.com/altmann/FluentResults/wiki/Asserting-Result-Objects) to assert FluentResult objects in an elegant way
 - **IN PREVIEW** [Returning Result Objects from ASP.NET Controller](https://github.com/altmann/FluentResults/wiki/Returning-Result-Objects-from-ASP.NET-Core-Controller)
 
@@ -42,20 +53,20 @@ A Result can store multiple Error and Success messages.
 
 ```csharp
 // create a result which indicates success
-Result successResult1 = Result.Ok();
+IResult successResult1 = Result.Ok();
 
 // create a result which indicates failure
-Result errorResult1 = Result.Fail("My error message");
-Result errorResult2 = Result.Fail(new Error("My error message"));
-Result errorResult3 = Result.Fail(new StartDateIsAfterEndDateError(startDate, endDate));
-Result errorResult4 = Result.Fail(new List<string> { "Error 1", "Error 2" });
-Result errorResult5 = Result.Fail(new List<IError> { new Error("Error 1"), new Error("Error 2") });
+IResult errorResult1 = Result.Fail("My error message");
+IResult errorResult2 = Result.Fail(new Error("My error message"));
+IResult errorResult3 = Result.Fail(new StartDateIsAfterEndDateError(startDate, endDate));
+IResult errorResult4 = Result.Fail(new List<string> { "Error 1", "Error 2" });
+IResult errorResult5 = Result.Fail(new List<IError> { new Error("Error 1"), new Error("Error 2") });
 ```
     
-The class `Result` is typically used by void methods which have no return value.
+The interface `IResult` is typically used by void methods which have no return value.
 
 ```csharp
-public Result DoTask()
+public IResult DoTask()
 {
     if (this.State == TaskState.Done)
         return Result.Fail("Task is in the wrong state.");
@@ -70,33 +81,59 @@ Additionally a value from a specific type can also be stored if necessary.
 
 ```csharp
 // create a result which indicates success
-Result<int> successResult1 = Result.Ok(42);
-Result<MyCustomObject> successResult2 = Result.Ok(new MyCustomObject());
+IResult<int> successResult1 = Result.Ok(42);
+IResult<MyCustomObject> successResult2 = Result.Ok(new MyCustomObject());
 
 // create a result which indicates failure
 Result<int> errorResult = Result.Fail<int>("My error message");
 ```
 
-The class `Result<T>` is typically used by methods with a return type. 
+The interface `IResult<out T>` is typically used by methods with a return type. 
 
 ```csharp
-public Result<Task> GetTask()
+public IResult<Task> GetTask()
 {
     if (this.State == TaskState.Deleted)
         return Result.Fail<Task>("Deleted Tasks can not be displayed.");
 
     // rest of the logic
 
-    return Result.Ok(task);
+    return Result.Ok(_task);
+}
+```
+
+The interface is covariant, so the result of a sub class can be cast into a 
+result of the super class:
+
+```charp
+public IResult<ICar> BuildCar(string carType) 
+{
+    switch(carType)
+    {
+        case "Porsche":
+        // returns IResult<Porsche>
+        return Result.Ok(new Porsche());
+
+        case "Chevrolet":
+        // return IResult<Chevrolet>
+        return Result.Ok(new Chevrolet());
+
+        default:
+        return Result.Fail<ICar>("Invalid car type: " + carType);
+    }
 }
 ```
 
 ## Processing a Result
 
-After you get a Result object from a method you have to process it. This means, you have to check if the operation was completed successfully or not. The properties `IsSuccess` and `IsFailed` in the Result object indicate success or failure. The value of a `Result<T>` can be accessed via the properties `Value` and `ValueOrDefault`.
+After you get a result object from a method you have to process it. This means, 
+you have to check if the operation was completed successfully or not. The properties 
+`IsSuccess` and `IsFailed` (extension properties) in the result object indicate 
+success or failure. The value of an `IResult<T>` can be accessed via the properties 
+`Value` and `ValueOrDefault` (Value is an extension property).
 
 ```csharp
-Result<int> result = DoSomething();
+IResult<int> result = DoSomething();
      
 // get all reasons why result object indicates success or failure. 
 // contains Error and Success messages
@@ -113,21 +150,28 @@ if (result.IsFailed)
     // handle error case
     var value1 = result.Value; // throws exception because result is in failed state
     var value2 = result.ValueOrDefault; // return default value (=0) because result is in failed state
-    return;
 }
-
-// handle success case
-var value3 = result.Value; // return value and doesn't throw exception because result is in success state
-var value4 = result.ValueOrDefault; // return value because result is in success state
+else 
+{
+    // handle success case
+    var value3 = result.Value; // return value and doesn't throw exception because result is in success state
+    var value4 = result.ValueOrDefault; // return value because result is in success state
+}
 ```
 
 ## Designing errors and success messages
 
-There are many Result Libraries which store only simple string messages. FluentResults instead stores powerful object-oriented Error and Success objects. The advantage is all the relevant information of an error or success is encapsulated within one class. 
+There are many Result Libraries which store only simple string messages. FluentResults
+instead stores powerful object-oriented Error and Success objects. The advantage is all
+the relevant information of an error or success is encapsulated within one class.
 
-The entire public api of this library uses the interfaces `IReason`, `IError` and `ISuccess` for representing a reason, error or success. `IError` and `ISuccess` inherit from `IReason`. If at least one `IError` object exists in the `Reasons` property then the result indicates a failure and the property `IsSuccess` is false. 
+The entire public api of this library uses the interfaces `IReason`, `IError` and `ISuccess`
+for representing a reason, error or success. `IError` and `ISuccess` inherit from `IReason`.
+If at least one `IError` object exists in the `Reasons` property then the result indicates a
+failure and the property `IsSuccess` is false. 
 
-You can create your own `Success` or `Error` classes when you inherit from `ISuccess` or `IError` or if you inherit from `Success` or `Error`. 
+You can create your own `Success` or `Error` classes when you implement `ISuccess` or `IError`
+or if you inherit from `Success` or `Error`.
 
 ```csharp
 public class StartDateIsAfterEndDateError : Error
@@ -140,7 +184,8 @@ public class StartDateIsAfterEndDateError : Error
 }
 ```
 
-With this mechanism you can also create a class `Warning`. You can choose if a Warning in your system indicates a success or a failure by inheriting from `Success` or `Error` classes.  
+With this mechanism you can also create a class `Warning`. You can choose if a Warning in your
+system indicates a success or a failure by inheriting from `Success` or `Error` classes. 
 
 ## Further features
 
@@ -157,7 +202,8 @@ var result = Result.Fail("error message 1")
 
 ### Create a result depending on success/failure condition
 
-Very often you have to create a fail or success result depending on a condition. Usually you can write it in this way:
+Very often you have to create a fail or success result depending on a condition. Usually you can
+write it in this way:
 
 ```csharp
 var result = string.IsNullOrEmpty(firstName) ? Result.Fail("First Name is empty") : Result.Ok();
@@ -169,7 +215,8 @@ With the methods ```FailIf()``` and ```OkIf()``` you can also write in a more re
 var result = Result.FailIf(string.IsNullOrEmpty(firstName), "First Name is empty");
 ```
 
-If an error instance should be lazily initialized, overloads accepting ```Func<string>``` or ```Func<IError>``` can be used to that effect:
+If an error instance should be lazily initialized, overloads accepting ```Func<string>``` or
+```Func<IError>``` can be used to that effect:
 
 ```csharp
 var list = Enumerable.Range(1, 9).ToList();
@@ -185,7 +232,8 @@ bool IsDivisibleByTen(int i) => i % 10 == 0;
 
 ### Try
 
-In some scenarios you want to execute an action. If this action throws an exception then the exception should be caught and transformed to a result object. 
+In some scenarios you want to execute an action. If this action throws an exception then the
+exception should be caught and transformed to a result object. 
 
 ```csharp
 var result = Result.Try(() => DoSomethingCritical());
@@ -206,7 +254,9 @@ var result = Result.Try(() => {
 });
 ```
 
-In the above example the default catchHandler is used. The behavior of the default catchHandler can be overwritten via the global Result settings (see next example). You can control how the Error object looks.
+In the above example the default catchHandler is used. The behavior of the default catchHandler
+can be overwritten via the global Result settings (see next example). You can control how the 
+Error object looks.
 
 ```csharp
 Result.Setup(cfg =>
@@ -235,7 +285,9 @@ var result = Result.Try(() => DoSomethingCritical(), ex => new MyCustomException
 
 ### Root cause of the error
 
-You can also store the root cause of the error in the error object. With the method `CausedBy(...)` the root cause can be passed as Error, list of Errors, string, list of strings or as exception. The root cause is stored in the `Reasons` property of the error object. 
+You can also store the root cause of the error in the error object. With the method 
+`CausedBy(...)` the root cause can be passed as Error, list of Errors, string, list of strings
+or as exception. The root cause is stored in the `Reasons` property of the error object. 
 
 Example 1 - root cause is an exception
 ```csharp
@@ -274,7 +326,8 @@ foreach(IError error in result.Errors)
 
 It is possible to add metadata to Error or Success objects. 
 
-One way of doing that is to call the method `WithMetadata(...)` directly where result object is being created. 
+One way of doing that is to call the method `WithMetadata(...)` directly where result object is
+being created. 
 
 ```csharp
 var result1 = Result.Fail(new Error("Error 1").WithMetadata("metadata name", "metadata value"));
@@ -321,6 +374,38 @@ var results = new List<Result> { result1, result2, result3 };
 var mergedResult = results.Merge();
 ```
 
+A list (or an enumerable) of results of the same type, can be merged into a result
+of type list of the result values. The result will fail, if any result in the
+list failed. It will contain the complete list of values otherwise.
+
+```charp
+IReadOnlyList<IResult<int>> numbers = 
+[
+    Result.Ok(4),
+    Result.Ok(8),
+    Result.Ok(15),
+    Result.Fail<int>("Number not found")
+    Result.Ok(23),
+    Result.Ok(42),
+];
+
+IResult<IReadOnlyList<int>> resultNumbers = numbers.Merge();
+
+if(result.IsSuccess) 
+{
+    foreach(var number in resultNumbers.Value)
+    {
+        Console.WriteLine(number);
+    }
+}
+else 
+{
+    Console.Error.WriteLine("Not all numbers found");
+}
+```
+
+
+
 ### Converting and Transformation
 
 A result object can be converted to another result object with methods `ToResult()` and `ToResult<TValue>()`.
@@ -354,6 +439,7 @@ A value of a result object to another value can be transformed via method ``Map(
 Result.Ok<int>(5).Map(v => new Dto(5));
 ```
 
+<!-- implicit conversion not working with interface!
 ### Implicit conversion from T to success result ```Result<T>```
 
 ```csharp
@@ -381,21 +467,34 @@ List<Error> myErrors = new List<Error>()
 Result result = myErrors;
 ```
 
+-->
+
+### Unwrap the result
+
+Results with values can be unwrapped, with the `Unwrap` method. The Unrwap method needs
+a `onError` delegate (or lambda) as argument, to handle IsFailed results:
+
+```
+IResult<string> result = TrySthg();
+
+string finalString = result.Unwrap(error => "ERROR: " + error.ToString());
+```
+
 ### Bind the result to another result
 
-Binding is a transformation that returns a `Result` | `Result<T>`.
+Binding is a transformation that returns a `IResult` | `IResult<T>`.
 It only evaluates the transformation if the original result is successful.
-The reasons of both `Result` will be merged into a new flattened `Result`.
+The reasons of both `IResult` will be merged into a new flattened `IResult`.
 
 ```csharp
 // converting a result to a result which may fail
-Result<string> r = Result.Ok(8)
+IResult<string> r = Result.Ok(8)
     .Bind(v => v == 5 ? "five" : Result.Fail<string>("It is not five"));
 
 // converting a failed result to a result, which can also fail, 
 // returns a result with the errors of the first result only,
 // the transformation is not evaluated because the value of the first result is not available
-Result<string> r = Result.Fail<int>("Not available")
+IResult<string> r = Result.Fail<int>("Not available")
     .Bind(v => v == 5 ? "five" : Result.Fail<string>("It is not five"));
 
 // converting a result with value to a Result via a transformation which may fail
@@ -405,7 +504,7 @@ Result.Ok(5).Bind(x => Result.OkIf(x == 6, "Number is not 6"));
 Result.Ok().Bind(() => Result.Ok(5));
 
 // just running an action if the original result is sucessful. 
-Result r = Result.Ok().Bind(() => Result.Ok());
+IResult r = Result.Ok().Bind(() => Result.Ok());
 ```
 
 The `Bind` has asynchronous overloads.
@@ -509,6 +608,19 @@ var outcome = result switch
 };
 ```
 
+### Pattern Matching with Covariance
+
+```
+IResult<ICar> result = BuildCar();
+var outcome = result switch 
+{
+    { IsFailed: true } => null,
+    IResult<Porsche> => "Porsche",
+    IResult<BMW> => "BMW",
+    _ => "Unknown car type"
+};
+```
+
 ### Deconstruct Operators
 
 ```csharp
@@ -524,12 +636,12 @@ Sometimes it is necessary to log results. First create a logger:
 ```csharp
 public class MyConsoleLogger : IResultLogger
 {
-    public void Log(string context, string content, ResultBase result, LogLevel logLevel)
+    public void Log(string context, string content, IResult result, LogLevel logLevel)
     {
         Console.WriteLine("Result: {0} {1} <{2}>", result.Reasons.Select(reason => reason.Message), content, context);
     }
 
-    public void Log<TContext>(string content, ResultBase result, LogLevel logLevel)
+    public void Log<TContext>(string content, IResult result, LogLevel logLevel)
     {
         Console.WriteLine("Result: {0} {1} <{2}>", result.Reasons.Select(reason => reason.Message), content, typeof(TContext).FullName);
     }
@@ -558,14 +670,19 @@ Additionally, a context can be passed in form of a string or of a generic type p
 var result = Result.Fail("Operation failed")
     .Log("logger context", "More info about the result");
 
+// Warning: Log with Context removes the type and returns
+//          only IResult!
 var result2 = Result.Fail("Operation failed")
-    .Log<MyLoggerContext>("More info about the result");
+    .LogWithContext<MyLoggerContext>("More info about the result");
 ```
 
 It's also possible to specify the desired log level:
 ```csharp
 var result = Result.Ok().Log(LogLevel.Debug);
-var result = Result.Fail().Log<MyContext>("Additional context", LogLevel.Error);
+
+// Warning: Log with Context removes the type and returns
+//          only IResult!
+var result = Result.Fail().LogWithContext<MyContext>("Additional context", LogLevel.Error);
 ```
 
 You can also log results only on successes or failures:

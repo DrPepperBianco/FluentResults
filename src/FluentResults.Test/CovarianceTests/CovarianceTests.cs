@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using FluentResults.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +75,7 @@ namespace FluentResults.Test
         [Fact]
         public void IResultBase_WithValue()
         {
-            IResultBase result = Result.Create();
+            IResult result = Result.Create();
 
             Assert.False(result is IResult<IInterfaceA>);
             Assert.False(result is IResult<IInterfaceB>);

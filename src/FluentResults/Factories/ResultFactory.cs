@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace FluentResults.Factory;
+namespace FluentResults.Factories;
 
 
 /// <summary>
-/// Creates <see cref="IResultBase"/> and <see cref="IResult{TValue}"/>
+/// Creates <see cref="IResult"/> and <see cref="IResult{TValue}"/>
 /// </summary>
 internal static class ResultFactory
 {
@@ -17,7 +17,7 @@ internal static class ResultFactory
     /// <remarks>
     /// By Design this is also a success object.
     /// </remarks>
-    public static IResultBase CreateEmptyResult() => new ResultBaseImpl();
+    public static IResult CreateEmptyResult() => new ResultBaseImpl();
 
     /// <summary>
     /// Creates an empty Result object with the given 
