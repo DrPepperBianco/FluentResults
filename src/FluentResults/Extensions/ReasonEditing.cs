@@ -100,7 +100,8 @@ public static class ResultReasonEditing
     /// <summary>
     /// Add a reason (success or successes)
     /// </summary>
-    public static TResult WithReason<TResult>(this TResult result, IReason reason) where TResult : IResult    {
+    public static TResult WithReason<TResult>(this TResult result, IReason reason)        where TResult : IResult
+    {
         result.Reasons.Add(reason);
         return (TResult)result;
     }
@@ -108,7 +109,8 @@ public static class ResultReasonEditing
     /// <summary>
     /// Add multiple reasons (success or successes)
     /// </summary>
-    public static TResult WithReasons<TResult>(this TResult result, IEnumerable<IReason> reasons) where TResult : IResult    {
+    public static TResult WithReasons<TResult>(this TResult result, IEnumerable<IReason> reasons)        where TResult : IResult
+    {
         result.Reasons.AddRange(reasons);
         return (TResult)result;
     }
@@ -116,7 +118,8 @@ public static class ResultReasonEditing
     /// <summary>
     /// Add an successes
     /// </summary>
-    public static TResult WithError<TResult>(this TResult result, string errorMessage) where TResult : IResult    {
+    public static TResult WithError<TResult>(this TResult result, string errorMessage)        where TResult : IResult
+    {
         return result.WithError(Result.Settings.ErrorFactory(errorMessage));
     }
 
@@ -124,7 +127,8 @@ public static class ResultReasonEditing
     /// Add an successes
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TResult WithError<TResult>(this TResult result, IError error) where TResult : IResult    {
+    public static TResult WithError<TResult>(this TResult result, IError error)        where TResult : IResult
+    {
         return result.WithReason(error);
     }
 
@@ -132,14 +136,16 @@ public static class ResultReasonEditing
     /// Add multiple errors
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TResult WithErrors<TResult>(this TResult result, IEnumerable<IError> errors) where TResult : IResult    {
+    public static TResult WithErrors<TResult>(this TResult result, IEnumerable<IError> errors)        where TResult : IResult
+    {
         return result.WithReasons(errors);
     }
 
     /// <summary>
     /// Add multiple errors
     /// </summary>
-    public static TResult WithErrors<TResult>(this TResult result, IEnumerable<string> errors) where TResult : IResult    {
+    public static TResult WithErrors<TResult>(this TResult result, IEnumerable<string> errors)        where TResult : IResult
+    {
         return result.WithReasons(errors.Select(errorMessage => Result.Settings.ErrorFactory(errorMessage)));
     }
 
@@ -147,7 +153,8 @@ public static class ResultReasonEditing
     /// <summary>
     /// Add a success
     /// </summary>
-    public static TResult WithSuccess<TResult>(this TResult result, string successMessage) where TResult : IResult    {
+    public static TResult WithSuccess<TResult>(this TResult result, string successMessage)        where TResult : IResult
+    {
         return result.WithSuccess(Result.Settings.SuccessFactory(successMessage));
     }
 
@@ -155,7 +162,8 @@ public static class ResultReasonEditing
     /// Add a success
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TResult WithSuccess<TResult>(this TResult result, ISuccess success) where TResult : IResult    {
+    public static TResult WithSuccess<TResult>(this TResult result, ISuccess success)        where TResult : IResult
+    {
         return result.WithReason(success);
     }
 
@@ -164,7 +172,8 @@ public static class ResultReasonEditing
     /// Add multiple successes
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TResult WithSuccesses<TResult>(this TResult result, IEnumerable<ISuccess> successes) where TResult : IResult    {
+    public static TResult WithSuccesses<TResult>(this TResult result, IEnumerable<ISuccess> successes)        where TResult : IResult
+    {
         return result.WithReasons(successes);
     }
 

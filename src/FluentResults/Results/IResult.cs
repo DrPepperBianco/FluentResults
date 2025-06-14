@@ -1,6 +1,8 @@
 ﻿#nullable enable
+#pragma warning disable CS1591 // No warning for missing comments on `extension`
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -40,7 +42,30 @@ public interface IResult<out TValue> : IResult
 /// </summary>
 public static partial class ResultExt
 {
-    /// <summary>Extensions for IResult</summary>
+    #region Classic Exytension methods for properties IsSuccess, IsFailed and Value
+    // These extension methods are for usage in projects, that doesn’t support new
+    // extension.
+    // All other methods are automatically extension methods by design. But properties
+    // are not automatically extension methods.
+
+    /// <summary>
+    /// Is true if Reasons contains no errors
+    /// </summary>
+    public static bool GetIsFailed(this IResult result) =>
+        get_IsFailed(result);
+
+    /// <summary>
+    /// Is true if Reasons contains no errors
+    /// </summary>
+    public static bool GetIsSuccess(this IResult result) =>
+        get_IsSuccess(result);
+
+    /// <summary>
+    /// Get the Value. If result is failed then an Exception is thrown because a failed result has no value. Opposite see property ValueOrDefault.
+    /// </summary>
+    public static TValue GetValue<TValue>(this IResult<TValue> result) =>
+        get_Value<TValue>(result);
+
     extension(IResult self)
     {
         /// <summary>
@@ -66,7 +91,6 @@ public static partial class ResultExt
             [.. self.Reasons.OfType<ISuccess>()];
     }
 
-    /// <summary>Extensions for IResult{T}</summary>
     extension<TValue>(IResult<TValue> self)
     {
         /// <summary>
@@ -97,3 +121,5 @@ public static partial class ResultExt
                     ReasonFormat.ErrorReasonsToString(result.Errors)}");
     }
 }
+
+#pragma warning restore CS1591

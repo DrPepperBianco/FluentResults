@@ -97,15 +97,24 @@ public class ResultFactoryAndCovarianceTests
         var data = Enumerable.Range(0, 42).Select(i => Result.Ok(i));
         var actual = data.Merge();
 
-        Assert.True(actual.IsSuccess);
-        Assert.True(actual.Value is IEnumerable<int> ints && ints.ToArray() is { Length: 42 });
+        Assert.True(actual.GetIsSuccess());
+        Assert.True(actual.GetValue() is IEnumerable<int> ints && ints.ToArray() is { Length: 42 });
 
         var outcome = actual switch
         {
-            { IsFailed: true } => false,
+            //{ IsFailed: true } => false,
+            { } r when r.GetIsFailed() is true => false,
             _ => true
         };
+
+        actual = actual.WithError(new CarError("My Error"));
+
+        Assert.True(actual.HasError<CarError>());
     }
 
+    sealed class CarError : Error
+    {
+        public CarError(string message) : base(message) { }
+    }
 
 }

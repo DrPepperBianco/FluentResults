@@ -2,7 +2,7 @@
 
   <PropertyGroup>    
     <TargetFrameworks>net48;net8.0</TargetFrameworks>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>13</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

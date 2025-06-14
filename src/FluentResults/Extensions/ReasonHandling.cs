@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable CS1591 // `extension` gets warning about XML-Comments
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -152,3 +153,4 @@ public static class ResultReasonHandling
         }
     }
 }
+#pragma warning restore CS1591
